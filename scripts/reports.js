@@ -10,19 +10,21 @@ const tablaProductosMasVendidosBody = document.querySelector('#tabla-productos-m
 
 // ** Lógica para generar el reporte de ventas **
 btnGenerarReporte.addEventListener('click', async () => {
+    console.group("Generando reporte de ventas...");
     const fechaInicio = fechaInicioReporteInput.value;
     const fechaFin = fechaFinReporteInput.value;
 
     if (!fechaInicio || !fechaFin) {
+        console.warn("Fechas de inicio/fin no seleccionadas para el reporte.");
         alert('Por favor, selecciona una fecha de inicio y una fecha de fin para el reporte.');
+        console.groupEnd();
         return;
     }
 
     // Convertir las fechas a objetos Date y establecer horas para el rango
-    // Para Santo Domingo Este, la zona horaria es AST (Atlantic Standard Time), que es UTC-4.
-    // Al usar T00:00:00 y T23:59:59, nos aseguramos de cubrir el día completo en la hora local.
     const inicioTimestamp = firebase.firestore.Timestamp.fromDate(new Date(`${fechaInicio}T00:00:00`));
     const finTimestamp = firebase.firestore.Timestamp.fromDate(new Date(`${fechaFin}T23:59:59`));
+    console.log(`Periodo del reporte: ${fechaInicio} a ${fechaFin}`);
 
     try {
         const snapshot = await db.collection('ventas')
@@ -38,12 +40,15 @@ btnGenerarReporte.addEventListener('click', async () => {
         tablaProductosMasVendidosBody.innerHTML = '<tr><td colspan="2">Genera un reporte de ventas para ver los productos más vendidos.</td></tr>'; // Limpiar la tabla de productos más vendidos inicialmente
 
         if (snapshot.empty) {
+            console.info("No se encontraron ventas en el periodo seleccionado.");
             tablaVentasReporteBody.innerHTML = '<tr><td colspan="3">No se encontraron ventas en el periodo seleccionado.</td></tr>';
         } else {
+            console.log(`Se encontraron ${snapshot.size} ventas en el periodo.`);
             snapshot.forEach(doc => {
                 const venta = doc.data();
                 totalGeneralPeriodo += venta.totalVenta;
-
+                console.debug("Procesando venta:", venta);
+                
                 const fila = tablaVentasReporteBody.insertRow();
                 
                 // Formatear la fecha y hora para República Dominicana (es-DO)
@@ -73,29 +78,36 @@ btnGenerarReporte.addEventListener('click', async () => {
         }
 
         totalVentasReporteSpan.textContent = `RD$ ${totalGeneralPeriodo.toFixed(2)}`;
+        console.log(`Total de ventas en el periodo: RD$ ${totalGeneralPeriodo.toFixed(2)}`);
         
-        // Mostrar productos más vendidos
         mostrarProductosMasVendidos(productosVendidosConteo);
 
     } catch (error) {
-        console.error("Error al generar el reporte de ventas:", error);
+        console.error("Error crítico al generar el reporte de ventas:", error);
         alert("Hubo un error al generar el reporte. Consulta la consola para más detalles.");
     }
+    console.groupEnd();
 });
 
 // ** Función para mostrar los productos más vendidos **
 const mostrarProductosMasVendidos = (conteo) => {
+    console.group("Generando reporte de productos más vendidos...");
     tablaProductosMasVendidosBody.innerHTML = ''; // Limpiar la tabla
     const productosOrdenados = Object.entries(conteo).sort(([,cantidadA], [,cantidadB]) => cantidadB - cantidadA);
 
     if (productosOrdenados.length === 0) {
+        console.info("No hay datos de productos vendidos para este periodo.");
         tablaProductosMasVendidosBody.innerHTML = '<tr><td colspan="2">No hay datos de productos vendidos para este periodo.</td></tr>';
+        console.groupEnd();
         return;
     }
+
+    console.table(productosOrdenados.map(([nombre, cantidad]) => ({ Producto: nombre, Cantidad: cantidad })));
 
     productosOrdenados.forEach(([nombreProducto, cantidadTotal]) => {
         const fila = tablaProductosMasVendidosBody.insertRow();
         fila.insertCell(0).textContent = nombreProducto;
         fila.insertCell(1).textContent = cantidadTotal;
     });
+    console.groupEnd();
 };

@@ -16,6 +16,7 @@ let productoSeleccionadoParaRecepcion = null; // Para almacenar el objeto comple
 // ** Lógica de Búsqueda y Sugerencias de Productos (para Recepción) **
 buscarProductoRecepcionInput.addEventListener('input', async () => {
     const textoBusqueda = buscarProductoRecepcionInput.value.toLowerCase();
+    console.debug(`Buscando productos para recepción: '${textoBusqueda}'`);
     sugerenciasRecepcionUl.innerHTML = ''; // Limpiar sugerencias anteriores
     productoSeleccionadoParaRecepcion = null; // Resetear selección
     productoIdRecepcionInput.value = '';
@@ -59,8 +60,11 @@ buscarProductoRecepcionInput.addEventListener('input', async () => {
 
 // ** Lógica para registrar la recepción de mercancía **
 btnRegistrarRecepcion.addEventListener('click', async () => {
+    console.group("Intentando registrar recepción de mercancía...");
     if (!productoSeleccionadoParaRecepcion) {
+        console.warn("No se seleccionó ningún producto para la recepción.");
         alert('Por favor, selecciona un producto para registrar la recepción.');
+        console.groupEnd();
         return;
     }
 
@@ -70,16 +74,22 @@ btnRegistrarRecepcion.addEventListener('click', async () => {
     const nuevoPrecioVenta = nuevoPrecioVentaInput.value !== '' ? parseFloat(nuevoPrecioVentaInput.value) : null;
 
     if (isNaN(cantidadRecibida) || cantidadRecibida <= 0) {
+        console.error("Cantidad recibida inválida.");
         alert('Por favor, ingresa una cantidad válida y mayor a cero.');
+        console.groupEnd();
         return;
     }
     // Validar si se ingresaron precios y son válidos
     if (nuevoPrecioCompra !== null && (isNaN(nuevoPrecioCompra) || nuevoPrecioCompra < 0)) {
+        console.error("Precio de compra inválido.");
         alert('Por favor, ingresa un precio de compra válido.');
+        console.groupEnd();
         return;
     }
     if (nuevoPrecioVenta !== null && (isNaN(nuevoPrecioVenta) || nuevoPrecioVenta < 0)) {
+        console.error("Precio de venta inválido.");
         alert('Por favor, ingresa un precio de venta válido.');
+        console.groupEnd();
         return;
     }
 
@@ -109,21 +119,19 @@ btnRegistrarRecepcion.addEventListener('click', async () => {
             if (nuevoPrecioVenta !== null) {
                 actualizaciones.precioVenta = nuevoPrecioVenta;
             }
-
-            // Actualizar el documento del producto en Firestore con la cantidad y los precios
+            console.log("Actualizaciones para el producto:", actualizaciones);
             await productoRef.update(actualizaciones);
 
-            // Registrar la recepción en una nueva colección 'recepciones' para el historial
             await db.collection('recepciones').add({
                 fecha: firebase.firestore.FieldValue.serverTimestamp(),
                 productoId: productoSeleccionadoParaRecepcion.id,
                 nombreProducto: productoSeleccionadoParaRecepcion.nombre,
                 cantidadRecibida: cantidadRecibida,
-                // Registrar también los precios que se usaron/actualizaron en esta recepción
                 precioCompraRegistrado: nuevoPrecioCompra !== null ? nuevoPrecioCompra : productoSeleccionadoParaRecepcion.precioCompra,
                 precioVentaRegistrado: nuevoPrecioVenta !== null ? nuevoPrecioVenta : productoSeleccionadoParaRecepcion.precioVenta
             });
 
+            console.log('Recepción registrada y stock/precios actualizados con éxito!');
             alert('Recepción registrada y stock/precios actualizados con éxito!');
             
             // Limpiar formulario y resetear selección
@@ -136,18 +144,22 @@ btnRegistrarRecepcion.addEventListener('click', async () => {
             nuevoPrecioVentaInput.value = ''; // Limpiar campos de precio
             productoSeleccionadoParaRecepcion = null;
 
-            // Recargar el historial de recepciones para mostrar la última entrada
-            cargarHistorialRecepciones();
+            cargarHistorialRecepciones(); // Recargar el historial de recepciones
+            console.log("Formulario de recepción reseteado.");
 
         } catch (error) {
-            console.error("Error al registrar la recepción:", error);
+            console.error("Error crítico al registrar la recepción:", error);
             alert("Hubo un error al registrar la recepción. Consulta la consola.");
         }
+    } else {
+        console.log("Recepción cancelada por el usuario.");
     }
+    console.groupEnd();
 });
 
 // ** Función para cargar y mostrar el historial de recepciones **
 const cargarHistorialRecepciones = async () => {
+    console.group("Cargando historial de recepciones...");
     tablaRecepcionesBody.innerHTML = '';
     try {
         const snapshot = await db.collection('recepciones')
@@ -156,9 +168,13 @@ const cargarHistorialRecepciones = async () => {
             .get();
 
         if (snapshot.empty) {
+            console.info("No hay recepciones registradas en el historial.");
             tablaRecepcionesBody.innerHTML = '<tr><td colspan="3">No hay recepciones registradas.</td></tr>';
+            console.groupEnd();
             return;
         }
+
+        console.table(snapshot.docs.map(doc => doc.data()));
 
         snapshot.forEach(doc => {
             const recepcion = doc.data();
@@ -178,14 +194,10 @@ const cargarHistorialRecepciones = async () => {
             fila.insertCell(1).textContent = recepcion.nombreProducto;
             fila.insertCell(2).textContent = recepcion.cantidadRecibida;
         });
-
+        console.log("Historial de recepciones cargado.");
     } catch (error) {
         console.error("Error al cargar historial de recepciones:", error);
         tablaRecepcionesBody.innerHTML = '<tr><td colspan="3">Error al cargar el historial.</td></tr>';
     }
+    console.groupEnd();
 };
-
-// Cargar el historial de recepciones al cargar la página (o cuando se activa la sección por main.js)
-// La llamada a esta función se manejará ahora desde main.js para asegurar que se ejecuta cuando la sección está visible.
-// Sin embargo, es buena práctica mantenerla aquí para que la función exista si se llama directamente.
-// cargarHistorialRecepciones();

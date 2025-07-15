@@ -13,3 +13,6 @@
 
         // Obtén una referencia a Firestore
         const db = firebase.firestore();
+
+        // LOG: Confirmación de inicialización
+        console.info("Firebase inicializado y conectado a Firestore.");
