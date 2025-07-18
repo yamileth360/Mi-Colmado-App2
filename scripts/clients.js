@@ -18,6 +18,13 @@ const editTelefonoClienteInput = document.getElementById('edit-telefono-cliente'
 const editDireccionClienteInput = document.getElementById('edit-direccion-cliente');
 const editNotasClienteInput = document.getElementById('edit-notas-cliente');
 
+// ** Elementos del DOM para el filtro de tabla de clientes **
+const buscarClienteTablaInput = document.getElementById('buscar-cliente-tabla');
+
+// ** Variable para almacenar todos los clientes obtenidos de Firestore **
+// Necesitamos una copia completa para poder filtrar sin volver a consultar la DB
+let allClients = [];
+
 
 // ** Lógica para agregar un cliente a Firestore **
 formAgregarCliente.addEventListener('submit', async (e) => {
@@ -55,19 +62,20 @@ formAgregarCliente.addEventListener('submit', async (e) => {
 });
 
 // ** Función para mostrar los clientes en la tabla **
-const mostrarClientes = (clientes) => {
+// Ahora esta función recibe los clientes ya filtrados para mostrarlos
+const mostrarClientes = (clientesToShow) => {
     console.group("Actualizando tabla de clientes...");
     tablaClientesBody.innerHTML = ''; // Limpiar la tabla
-    if (clientes.length === 0) {
-        console.info("No hay clientes registrados para mostrar.");
-        tablaClientesBody.innerHTML = '<tr><td colspan="5">No hay clientes registrados.</td></tr>';
+    if (clientesToShow.length === 0) {
+        console.info("No hay clientes registrados que coincidan con la búsqueda.");
+        tablaClientesBody.innerHTML = '<tr><td colspan="5">No hay clientes registrados que coincidan con la búsqueda.</td></tr>';
         console.groupEnd();
         return;
     }
 
-    console.table(clientes); // ¡Útil para ver los datos de los clientes!
+    console.table(clientesToShow); // Muestra los clientes filtrados en la consola (formato tabla)
 
-    clientes.forEach(cliente => {
+    clientesToShow.forEach(cliente => {
         const fila = tablaClientesBody.insertRow();
 
         fila.insertCell(0).textContent = cliente.nombre;
@@ -97,7 +105,8 @@ const mostrarClientes = (clientes) => {
                     await db.collection('clientes').doc(cliente.id).delete();
                     console.log(`Cliente '${cliente.nombre}' eliminado con éxito.`);
                     alert('Cliente eliminado.');
-                } catch (error) {
+                }
+                catch (error) {
                     console.error(`Error al eliminar el cliente '${cliente.nombre}':`, error);
                     alert("Hubo un error al eliminar el cliente. Consulta la consola.");
                 }
@@ -108,18 +117,36 @@ const mostrarClientes = (clientes) => {
     console.groupEnd();
 };
 
+// ** Lógica de filtrado de clientes (se llama al escribir en la barra de búsqueda) **
+const filterClients = () => {
+    const searchTerm = buscarClienteTablaInput.value.toLowerCase();
+    console.debug(`Filtrando clientes con término: '${searchTerm}'`);
+    const filteredClients = allClients.filter(cliente => 
+        cliente.nombre.toLowerCase().includes(searchTerm) ||
+        (cliente.telefono && cliente.telefono.toLowerCase().includes(searchTerm)) ||
+        (cliente.direccion && cliente.direccion.toLowerCase().includes(searchTerm)) ||
+        (cliente.notas && cliente.notas.toLowerCase().includes(searchTerm))
+    );
+    mostrarClientes(filteredClients); // Muestra solo los clientes que coinciden con el filtro
+};
+
 // ** Escuchar cambios en la colección 'clientes' de Firestore **
+// Este onSnapshot ahora solo actualiza 'allClients' y luego llama a la función de filtro
 db.collection('clientes').orderBy('nombre').onSnapshot((snapshot) => {
-    console.info("Cambio detectado en la colección 'clientes'.");
-    const clientes = [];
+    console.info("Cambio detectado en la colección 'clientes' de Firestore.");
+    allClients = []; // Reinicia el array de todos los clientes
     snapshot.forEach(doc => {
-        clientes.push({ id: doc.id, ...doc.data() });
+        allClients.push({ id: doc.id, ...doc.data() });
     });
-    mostrarClientes(clientes);
+    console.log(`Total de clientes en Firestore: ${allClients.length}.`);
+    filterClients(); // Llama a la función de filtro para actualizar la tabla mostrada
 }, (error) => {
     console.error("Error al escuchar cambios en 'clientes':", error);
     alert("Error al cargar los clientes. Consulta la consola.");
 });
+
+// ** Event listener para el input de búsqueda de la tabla **
+buscarClienteTablaInput.addEventListener('input', filterClients);
 
 
 // --- Lógica para Edición de Clientes (Funciones del Modal) ---

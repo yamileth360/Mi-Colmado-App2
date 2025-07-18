@@ -16,7 +16,7 @@
                 <img src="assets/logo.png" alt="Inventix Logo" class="app-logo">
                 <span class="app-name">Inventix</span>
                 <button class="toggle-sidebar-btn" id="toggle-sidebar-btn">
-                    <i class="icon-toggle-left"></i> </button>
+                    &#9776; </button>
             </div>
             <nav class="sidebar-nav">
                 <ul>
@@ -36,6 +36,8 @@
         <div class="main-content-wrapper">
             <header class="main-header">
                 <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                        &#9776; </button>
                     <div class="search-bar">
                         <i class="icon-search"></i>
                         <input type="text" placeholder="Buscar...">
@@ -66,8 +68,7 @@
                     <h2>Inventario</h2>
                     <div class="section-header-controls">
                         <button class="btn-primary" id="btn-show-add-product-form">
-                            <i class="icon-add-stock"></i> Añadir Nuevo Producto
-                        </button>
+                            <i class="icon-add-stock"></i> Añadir Nuevo Producto </button>
                     </div>
 
                     <div id="add-product-form-container" class="form-container">
@@ -96,7 +97,7 @@
                                 <input type="date" id="fecha-vencimiento">
                             </div>
 
-                            <button type="submit">Agregar Producto</button>
+                            <button type="submit" class="btn-primary">Agregar Producto</button>
                             <button type="button" class="btn-secondary" id="btn-cancel-add-product">Cancelar</button>
                         </form>
                     </div>
@@ -134,7 +135,7 @@
                             <input type="text" id="buscar-cliente-pos" placeholder="Buscar cliente o dejar vacío">
                             <ul id="sugerencias-clientes-pos" class="sugerencias-lista"></ul>
                             <span id="cliente-seleccionado-pos" class="cliente-info-pos"></span>
-                            <button id="btn-quitar-cliente" style="display:none;">Quitar Cliente</button>
+                            <button id="btn-quitar-cliente" class="btn-secondary" style="display:none;">Quitar Cliente</button>
                             <input type="hidden" id="cliente-id-seleccionado">
                         </div>
                     </div>
@@ -174,30 +175,46 @@
                         </div>
 
                         <button id="btn-limpiar-carrito" class="btn-secondary" style="margin-right: 10px;">Limpiar Carrito</button>
-                        <button id="btn-registrar-venta">Registrar Venta</button>
+                        <button id="btn-registrar-venta" class="btn-primary">Registrar Venta</button>
                     </div>
                 </section>
 
                 <section id="clientes-seccion" class="app-section">
                     <h2>Clientes</h2>
-                    <h3>Añadir Nuevo Cliente</h3>
-                    <form id="form-agregar-cliente">
-                        <label for="nombre-cliente">Nombre:</label>
-                        <input type="text" id="nombre-cliente" required>
+                    <div class="section-header-controls">
+                        <button class="btn-primary" id="btn-show-add-client-form">
+                            <i class="icon-add-stock"></i> <span>Añadir Nuevo Cliente</span>
+                        </button>
+                    </div>
 
-                        <label for="telefono-cliente">Teléfono:</label>
-                        <input type="tel" id="telefono-cliente">
+                    <div id="add-client-form-container" class="recepcion-controles form-container">
+                        <h3 class="form-title">Añadir Nuevo Cliente</h3>
+                        <form id="form-agregar-cliente">
+                            <label for="nombre-cliente">Nombre:</label>
+                            <input type="text" id="nombre-cliente" required>
 
-                        <label for="direccion-cliente">Dirección:</label>
-                        <input type="text" id="direccion-cliente">
+                            <label for="telefono-cliente">Teléfono:</label>
+                            <input type="tel" id="telefono-cliente">
 
-                        <label for="notas-cliente">Notas:</label>
-                        <textarea id="notas-cliente" rows="3"></textarea>
+                            <label for="direccion-cliente">Dirección:</label>
+                            <input type="text" id="direccion-cliente">
 
-                        <button type="submit">Agregar Cliente</button>
-                    </form>
+                            <label for="notas-cliente">Notas:</label>
+                            <textarea id="notas-cliente" rows="4"></textarea>
 
-                    <h3>Lista de Clientes</h3>
+                            <button type="submit" class="btn-primary">Agregar Cliente</button>
+                            <button type="button" class="btn-secondary" id="btn-cancel-add-client">Cancelar</button>
+                        </form>
+                    </div>
+                    
+                    <div class="section-heading-with-controls">
+                        <h3>Lista de Clientes</h3>
+                        <div class="search-bar-table">
+                            <i class="icon-search"></i>
+                            <input type="text" id="buscar-cliente-tabla" placeholder="Buscar cliente por nombre o teléfono...">
+                        </div>
+                    </div>
+
                     <table id="tabla-clientes">
                         <thead>
                             <tr>
@@ -224,7 +241,7 @@
                         <label for="fecha-fin-reporte">Fecha Fin:</label>
                         <input type="date" id="fecha-fin-reporte">
                         
-                        <button id="btn-generar-reporte">Generar Reporte</button>
+                        <button id="btn-generar-reporte" class="btn-secondary">Generar Reporte</button>
                     </div>
 
                     <div class="resumen-reporte">
@@ -261,25 +278,35 @@
 
                 <section id="recepcion-mercancia-seccion" class="app-section">
                     <h2>Recepción de Mercancía</h2>
-                    <h3>Registrar Entrada de Productos</h3>
-                    <div class="recepcion-controles">
-                        <label for="buscar-producto-recepcion">Buscar Producto:</label>
-                        <input type="text" id="buscar-producto-recepcion" placeholder="Escribe el nombre del producto">
-                        <ul id="sugerencias-recepcion" class="sugerencias-lista"></ul>
-                        
-                        <input type="hidden" id="producto-id-recepcion"> 
-                        <span id="producto-seleccionado-recepcion"></span> 
-                        
-                        <label for="cantidad-recibida">Cantidad Recibida:</label>
-                        <input type="number" id="cantidad-recibida" min="1" value="1" required>
-                        
-                        <label for="nuevo-precio-compra">Nuevo Precio Compra:</label>
-                        <input type="number" id="nuevo-precio-compra" step="0.01">
+                    <div class="section-header-controls">
+                        <button class="btn-primary" id="btn-show-add-reception-form">
+                            <i class="icon-add-stock"></i> <span>Registrar Entrada de Productos</span>
+                        </button>
+                    </div>
 
-                        <label for="nuevo-precio-venta">Nuevo Precio Venta:</label>
-                        <input type="number" id="nuevo-precio-venta" step="0.01">
+                    <div id="add-reception-form-container" class="recepcion-controles form-container">
+                        <h3 class="form-title">Registrar Entrada de Productos</h3>
+                        <form id="form-registrar-recepcion">
+                            <label for="buscar-producto-recepcion">Buscar Producto:</label>
+                            <input type="text" id="buscar-producto-recepcion" placeholder="Escribe el nombre del producto">
+                            <ul id="sugerencias-recepcion" class="sugerencias-lista"></ul>
+                            
+                            <input type="hidden" id="producto-id-recepcion"> 
+                            <label>Producto Seleccionado:</label>
+                            <span id="producto-seleccionado-recepcion-display"></span> 
+                            
+                            <label for="cantidad-recibida">Cantidad Recibida:</label>
+                            <input type="number" id="cantidad-recibida" min="1" value="1" required>
+                            
+                            <label for="nuevo-precio-compra">Nuevo Precio Compra:</label>
+                            <input type="number" id="nuevo-precio-compra" step="0.01">
 
-                        <button id="btn-registrar-recepcion">Registrar Recepción</button>
+                            <label for="nuevo-precio-venta">Nuevo Precio Venta:</label>
+                            <input type="number" id="nuevo-precio-venta" step="0.01">
+
+                            <button type="submit" class="btn-primary">Registrar Recepción</button>
+                            <button type="button" class="btn-secondary" id="btn-cancel-add-reception">Cancelar</button>
+                        </form>
                     </div>
 
                     <h4>Historial de Recepciones (Últimas 5):</h4>
@@ -327,7 +354,7 @@
                                 <input type="date" id="edit-fecha-vencimiento">
                             </div>
 
-                            <button type="submit">Guardar Cambios</button>
+                            <button type="submit" class="btn-primary">Guardar Cambios</button>
                         </form>
                     </div>
                 </div>
@@ -351,7 +378,7 @@
                             <label for="edit-notas-cliente">Notas:</label>
                             <textarea id="edit-notas-cliente" rows="3"></textarea>
 
-                            <button type="submit">Guardar Cambios</button>
+                            <button type="submit" class="btn-primary">Guardar Cambios</button>
                         </form>
                     </div>
                 </div>

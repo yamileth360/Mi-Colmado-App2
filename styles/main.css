@@ -36,6 +36,7 @@ body {
 .sidebar-header {
     display: flex;
     align-items: center;
+    justify-content: space-between; /* Distribuye espacio entre logo/nombre y el botón */
     padding: 0 20px 20px; /* Padding inferior para separar del menú */
     border-bottom: 1px solid #f0f0f0; /* Separador */
     margin-bottom: 20px;
@@ -48,13 +49,16 @@ body {
     margin-right: 10px;
     border-radius: 8px; /* Bordes ligeramente redondeados para el logo */
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    flex-shrink: 0; /* Asegura que el logo no se encoja */
 }
 
 .app-name {
     font-size: 1em; /* TAMAÑO DEL NOMBRE AJUSTADO A 1EM */
     font-weight: bold;
     color: #2c3e50; /* Color oscuro para el nombre de la app */
-    white-space: nowrap; /* Evita que el texto del nombre se rompa al colapsar */
+    white-space: nowrap; /* Evita que el texto del nombre se rompa */
+    flex-grow: 1; /* Permite que el nombre ocupe el espacio disponible */
+    margin-right: 10px; /* Espacio entre el nombre y el botón de toggle */
 }
 
 .sidebar-nav ul {
@@ -108,9 +112,6 @@ body {
 .icon-notification::before { content: "🔔"; }
 .icon-user::before { content: "👤"; }
 .icon-add-stock::before { content: "➕"; }
-/* Iconos para el botón de toggle (cambian con la clase .collapsed) */
-.icon-toggle-left::before { content: "⬅️"; }
-.icon-toggle-right::before { content: "➡️"; }
 
 
 .sidebar-footer {
@@ -127,20 +128,19 @@ body {
 .toggle-sidebar-btn {
     background-color: transparent;
     border: none;
-    font-size: 1.5em; /* Tamaño ajustado */
+    font-size: 1.8em; /* Tamaño grande para la hamburguesa */
     color: #555;
     cursor: pointer;
-    padding: 5px;
-    position: absolute; /* Posición absoluta dentro del sidebar-header */
-    right: 10px; /* Alineado a la derecha */
-    top: 50%; /* Centrado verticalmente */
-    transform: translateY(-50%); /* Ajuste fino para centrar */
-    transition: transform 0.3s ease, color 0.2s ease;
+    padding: 0; /* Elimina padding que podría mover el icono */
+    line-height: 1; /* Ajusta la altura de línea para centrar el símbolo */
+    transition: color 0.2s ease, transform 0.3s ease;
     display: block; /* Visible por defecto en escritorio */
     z-index: 60; /* Asegura que esté por encima de otros elementos del header */
+    margin-left: auto; /* Empuja el botón a la derecha */
 }
 .toggle-sidebar-btn:hover {
     color: #007bff;
+    transform: scale(1.1); /* Efecto sutil al pasar el mouse */
 }
 
 /* --- ESTILOS PARA SIDEBAR COLAPSADO (ESCRITORIO) --- */
@@ -150,7 +150,7 @@ body {
 .sidebar.collapsed .sidebar-header {
     justify-content: center; /* Centra el logo cuando el texto desaparece */
     padding: 0 10px 20px; /* Ajusta padding */
-    position: relative; /* Para el botón de toggle */
+    position: relative; /* Mantener la posición relativa para el botón de toggle */
 }
 .sidebar.collapsed .app-name,
 .sidebar.collapsed .sidebar-footer {
@@ -158,14 +158,17 @@ body {
 }
 .sidebar.collapsed .app-logo {
     margin-right: 0; /* Elimina el margen a la derecha del logo */
+    width: 40px; /* Ligeramente más pequeño el logo al colapsar para que quepa mejor */
+    height: 40px;
 }
 .sidebar.collapsed .toggle-sidebar-btn {
-    transform: translateY(-50%) rotate(180deg); /* Rota la flecha */
-    left: auto; /* Restablece posición si es necesario */
-    right: 10px; /* Ajusta su posición si se rota */
+    /* No rota la hamburguesa */
+    transform: translateY(0%); /* Restablece el transform (sin rotación para hamburguesa) */
+    position: absolute; /* Vuelve a ser absoluto para estar en la esquina */
+    right: 5px; /* Posición más ajustada al borde */
+    top: 25px; /* Ajuste manual para que quede al lado del logo */
+    color: #007bff; /* Cambia el color a acento cuando está colapsado */
 }
-/* Cambia el icono de la flecha al estar colapsado */
-.sidebar.collapsed .icon-toggle-left::before { content: "➡️"; }
 
 
 .sidebar.collapsed .sidebar-nav .nav-link {
@@ -227,6 +230,22 @@ body {
     align-items: center;
     gap: 20px; /* Espacio entre elementos del header */
 }
+/* Estilo para el botón de menú móvil en el header */
+.mobile-menu-toggle {
+    background-color: transparent;
+    border: none;
+    font-size: 1.8em;
+    color: #555;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    display: none; /* OCULTO EN ESCRITORIO */
+    margin-right: 15px; /* Espacio a la derecha de la barra de búsqueda */
+}
+.mobile-menu-toggle:hover {
+    color: #007bff;
+}
+
 
 .search-bar {
     position: relative;
@@ -305,128 +324,294 @@ h3, h4 {
 }
 
 /* --- Estilos para Botones Generales --- */
-.btn-primary, .btn-secondary {
-    padding: 10px 20px;
+/* Estandarización de colores y tamaños para tipos de botones */
+/* Botones de acción primaria (ej. Añadir, Registrar Venta, Guardar) */
+.btn-primary,
+#btn-registrar-venta, /* Botón específico de POS */
+.recepcion-controles button[type="submit"] { /* Botón de Registrar Recepción y Cliente */
+    background-color: #007bff; /* Azul vibrante */
+    color: white;
+    padding: 12px 25px; /* TAMAÑO MÁS GRANDE PARA BOTONES PRIMARIOS */
+    font-size: 1.1em; /* Fuente ligeramente más grande */
+    border-radius: 8px; /* Bordes más redondeados */
+}
+.btn-primary:hover,
+#btn-registrar-venta:hover,
+.recepcion-controles button[type="submit"]:hover {
+    background-color: #0056b3; /* Azul más oscuro al hover */
+    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+}
+
+/* Botones de acción secundaria (ej. Cancelar, Limpiar, Generar) */
+.btn-secondary,
+#btn-limpiar-carrito, /* Botón específico de POS */
+.reporte-controles button { /* Botón de Generar Reporte */
+    background-color: #6c757d; /* Gris neutral */
+    color: white;
+    padding: 8px 18px; /* TAMAÑO MÁS PEQUEÑO PARA BOTONES SECUNDARIOS */
+    font-size: 0.95em; /* Fuente ligeramente más pequeña */
+    border-radius: 5px; /* Bordes normales */
+}
+.btn-secondary:hover,
+#btn-limpiar-carrito:hover,
+.reporte-controles button:hover {
+    background-color: #5a6268; /* Gris más oscuro al hover */
+    box-shadow: 0 4px 10px rgba(108,117,125,0.3);
+}
+
+/* Botones de tablas: Editar (Amarillo) */
+.btn-table-action.edit {
+    background-color: #ffc107; /* Amarillo */
+    color: #333;
+}
+.btn-table-action.edit:hover {
+    background-color: #e0a800;
+}
+
+/* Botones de tablas y POS: Eliminar/Quitar (Rojo) */
+.btn-table-action.delete,
+.btn-quitar-carrito { /* Botón de quitar en el carrito de POS */
+    background-color: #dc3545; /* Rojo */
+    color: white;
+    padding: 6px 12px;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 0.85em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    margin-right: 5px;
+}
+.btn-table-action.delete:hover,
+.btn-quitar-carrito:hover {
+    background-color: #c82333;
+}
+
+/* Estilos comunes para todos los botones */
+.btn-primary, .btn-secondary,
+.btn-table-action,
+#btn-registrar-venta, #btn-limpiar-carrito, #btn-generar-reporte,
+.recepcion-controles button {
+    border: none;
+    cursor: pointer;
     font-weight: bold;
     transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.btn-primary {
-    background-color: #007bff; /* Azul de acento */
-    color: white;
-}
-.btn-primary:hover {
-    background-color: #0056b3;
-    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
-}
 
-.btn-secondary {
-    background-color: #6c757d; /* Gris para secundario */
-    color: white;
-}
-.btn-secondary:hover {
-    background-color: #5a6268;
-    box-shadow: 0 4px 10px rgba(108,117,125,0.3);
-}
-
-/* --- Estilos para Formularios --- */
-.form-container {
-    background-color: #ffffff;
+/* --- Estilos para Formularios (GENERALES Y DE INVENTARIO) --- */
+/* Form-container ahora es un estilo general para la tarjeta del formulario de añadir producto */
+.form-container { /* Usado para Añadir Producto y Añadir Cliente */
+    background-color: #f9f9f9;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     margin-bottom: 20px;
-    display: none; /* Oculto por defecto, se mostrará con JS */
+    display: none !important; /* Oculto por defecto, se mostrará con JS */
 }
 .form-container.active {
-    display: block;
+    display: block !important; /* Forzar que se muestre con la clase active */
 }
-.form-container form {
+.form-container form { /* Estilo general para formularios dentro de form-container (ej. Añadir Producto) */
     display: grid;
-    grid-template-columns: 1fr 2fr; /* Etiqueta y campo */
+    grid-template-columns: 1fr 2fr;
     gap: 15px;
-    padding: 0; /* Eliminar padding de la regla global de form */
-    border: none; /* Eliminar borde de la regla global de form */
-    background-color: transparent; /* Eliminar fondo de la regla global de form */
+    padding: 0;
+    border: none;
+    background-color: transparent;
 }
 .form-container form label {
     font-weight: 600;
     color: #444;
+    text-align: right; /* Alinea etiquetas a la derecha */
+    padding-right: 15px; /* Espacio entre label e input */
+    align-self: center; /* Centrar verticalmente */
 }
+/* Inputs, selects, textareas generales */
 .form-container form input[type="text"],
 .form-container form input[type="number"],
 .form-container form input[type="date"],
 .form-container form input[type="tel"],
 .form-container form textarea,
-.pos-opciones-pago select { /* Extender el estilo a select en POS */
+.pos-opciones-pago select, /* select en POS */
+.recepcion-controles input[type="text"], /* inputs en Recepción/Cliente */
+.recepcion-controles input[type="number"],
+.recepcion-controles textarea, /* textarea en Recepción/Cliente */
+#form-editar-producto input[type="text"], /* Inputs en modales de edición */
+#form-editar-producto input[type="number"],
+#form-editar-producto input[type="date"],
+#form-editar-cliente input[type="text"],
+#form-editar-cliente input[type="tel"],
+#form-editar-cliente textarea {
     padding: 10px 12px;
     border: 1px solid #ced4da;
     border-radius: 5px;
     font-size: 1em;
     width: 100%;
-    box-sizing: border-box; /* Incluye padding y border en el width */
-    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fcfdff;
 }
 .form-container form input:focus,
-.pos-opciones-pago select:focus {
+.pos-opciones-pago select:focus,
+.recepcion-controles input:focus,
+.recepcion-controles textarea:focus,
+#form-editar-producto input:focus,
+#form-editar-producto textarea:focus,
+#form-editar-cliente input:focus,
+#form-editar-cliente textarea:focus {
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
     outline: none;
 }
 .form-container form input[type="checkbox"] {
-    transform: scale(1.2); /* Agrandar checkbox un poco */
-    margin-top: 5px; /* Ajustar alineación */
+    transform: scale(1.2);
+    margin-top: 5px;
+    justify-self: start;
+    align-self: center;
 }
-.form-container form button {
-    grid-column: 1 / 3; /* Botones ocupan todo el ancho */
+.form-container form button { /* Botones dentro de form-container */
+    grid-column: 1 / 3;
     margin-top: 15px;
 }
-/* Alineación para los botones en el formulario de agregar/editar */
-#form-agregar-producto button, #form-editar-producto button,
-#form-agregar-cliente button, #form-editar-cliente button {
-    justify-self: end; /* Alinea los botones al final de la celda */
-    margin-left: 10px; /* Espacio entre botones si hay varios */
-}
-#form-agregar-producto button[type="submit"], #form-agregar-cliente button[type="submit"] {
-    margin-left: 0; /* Primer botón al inicio */
-}
-#form-agregar-producto, #form-editar-producto, #form-agregar-cliente, #form-editar-cliente {
-    /* Ajustes específicos para que los botones queden bien juntos o espaciados */
-    grid-template-columns: repeat(2, 1fr); /* Dos columnas para los botones al final del formulario */
-}
-#form-agregar-producto label, #form-editar-producto label,
-#form-agregar-cliente label, #form-editar-cliente label {
-    grid-column: 1 / 2; /* Las etiquetas siempre en la primera columna */
-}
-#form-agregar-producto input:not([type="checkbox"]), #form-editar-producto input:not([type="checkbox"]),
-#form-agregar-cliente input:not([type="checkbox"]), #form-editar-cliente input:not([type="checkbox"]),
-#form-agregar-cliente textarea, #form-editar-cliente textarea {
-    grid-column: 2 / 3; /* Los inputs siempre en la segunda columna */
-}
-/* Reajuste para los botones dentro de los formularios */
-.form-container form button[type="submit"], .form-container form button.btn-secondary {
-    grid-column: span 1; /* Cada botón ocupa 1 columna */
-    width: auto; /* Ancho automático */
-}
+/* Reajuste para los botones dentro de los formularios (añadir/cancelar producto/cliente) */
+/* Los botones están en .btn-primary y .btn-secondary */
 .form-container form button[type="submit"] {
-    justify-self: start; /* El botón principal al inicio de su columna */
+    grid-column: span 1; /* Ocupa solo 1 columna */
+    width: auto;
+    justify-self: start; /* El principal a la izquierda */
+    margin-left: 0;
+    margin-right: 10px; /* Espacio entre el primario y el secundario */
 }
 .form-container form button.btn-secondary {
-    justify-self: end; /* El botón secundario al final de su columna */
+    grid-column: span 1; /* Ocupa solo 1 columna */
+    width: auto;
+    justify-self: end; /* El secundario a la derecha */
+    margin-right: 0;
+    margin-left: 10px; /* Espacio entre el secundario y el primario si el primario está a la izquierda */
 }
 
-/* --- Estilos para Tablas --- */
+
+/* --- Estilos ESPECÍFICOS para formularios dentro de .recepcion-controles (CLIENTES y RECEPCIÓN) --- */
+/* Título dentro de los contenedores de tipo 'recepcion-controles' */
+.recepcion-controles .form-title {
+    text-align: left;
+    margin-top: 0;
+    margin-bottom: 25px;
+    border-bottom: none;
+    grid-column: 1 / 3; /* Para que el título ocupe ambas columnas del grid del contenedor */
+}
+
+/* Contenedor de tipo 'recepcion-controles' (usado para Recepción de Mercancía y Añadir Cliente) */
+.recepcion-controles { 
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.recepcion-controles label {
+    font-weight: 600;
+    color: #444;
+    text-align: right;
+    padding-right: 15px;
+    align-self: center;
+}
+/* Asegura que los botones dentro de .recepcion-controles ocupen 2 columnas */
+.recepcion-controles button {
+    grid-column: 1 / 3;
+    justify-self: center;
+    width: auto;
+    max-width: 250px;
+    margin-top: 15px;
+}
+
+
+/* Reglas específicas para #form-agregar-cliente (DENTRO DE .recepcion-controles) */
+#form-agregar-cliente {
+    display: grid;
+    grid-template-columns: auto 1fr; /* Etiqueta a la izquierda, input a la derecha */
+    gap: 15px 25px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    margin-bottom: 0;
+    grid-column: 1 / 3; /* Asegura que el formulario interno ocupe las dos columnas del padre */
+}
+#form-agregar-cliente label {
+    text-align: left; /* Alinear etiqueta a la izquierda */
+    padding-right: 0;
+}
+#form-agregar-cliente textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+#form-agregar-cliente button[type="submit"] {
+    grid-column: span 1; /* Ocupa una sola columna */
+    justify-self: start; /* Alineado a la izquierda de su columna */
+    margin-right: 10px;
+    width: auto;
+}
+#form-agregar-cliente button.btn-secondary {
+    grid-column: span 1; /* Ocupa una sola columna */
+    justify-self: end; /* Alineado a la derecha de su columna */
+    margin-left: 10px;
+    width: auto;
+}
+
+
+/* Duplicar y ajustar para el formulario de EDICIÓN de CLIENTE (dentro del modal) */
+#form-editar-cliente {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Misma proporción de columnas */
+    gap: 15px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    margin-bottom: 0;
+}
+
+#form-editar-cliente label {
+    font-weight: 600;
+    color: #495057;
+    text-align: right;
+    padding-right: 15px;
+    align-self: center;
+}
+#form-editar-cliente textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+#form-editar-cliente button[type="submit"] {
+    grid-column: 1 / 3;
+    padding: 12px 20px;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+    justify-self: center;
+    width: auto;
+    max-width: 250px;
+}
+
+
+/* Estilos para Tablas */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
     background-color: #ffffff;
     border-radius: 8px;
-    overflow: hidden; /* Para que los bordes redondeados se apliquen bien */
+    overflow: hidden;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 table thead tr {
@@ -438,83 +623,124 @@ table thead tr {
 table th, table td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #e0e0e0; /* Bordes suaves */
+    border-bottom: 1px solid #e0e0e0;
 }
 table tbody tr:last-child td {
-    border-bottom: none; /* No hay borde en la última fila */
+    border-bottom: none;
 }
 table tbody tr:hover {
-    background-color: #f9f9f9; /* Efecto hover en filas */
+    background-color: #f9f9f9;
 }
-
-/* Colores para alertas de inventario */
 table tbody tr.low-stock {
-    background-color: #ffe0b2; /* Naranja claro para bajo stock */
+    background-color: #ffe0b2;
 }
 table tbody tr.expiring-soon {
-    background-color: #ffcdd2; /* Rojo claro para próximo a vencer */
+    background-color: #ffcdd2;
 }
 table tbody tr.expired {
-    background-color: #ef9a9a; /* Rojo más fuerte para vencido */
+    background-color: #ef9a9a;
 }
-
-/* Estilos para los botones de acción en las tablas (generalizados) */
-.btn-table-action { /* Nueva clase base para botones en tablas */
+.btn-table-action {
     padding: 6px 12px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.85em;
     transition: background-color 0.2s ease, color 0.2s ease;
-    margin-right: 5px; /* Espacio entre botones */
+    margin-right: 5px;
 }
 .btn-table-action.edit {
-    background-color: #ffc107; /* Amarillo para editar */
+    background-color: #ffc107;
     color: #333;
 }
 .btn-table-action.edit:hover {
     background-color: #e0a800;
 }
 .btn-table-action.delete {
-    background-color: #dc3545; /* Rojo para eliminar */
+    background-color: #dc3545;
     color: white;
 }
 .btn-table-action.delete:hover {
     background-color: #c82333;
 }
 
-/* --- Estilos para el POS (Punto de Venta) --- */
-/* CONTENEDOR PARA BUSCADORES DE PRODUCTO Y CLIENTE LADO A LADO */
-.pos-search-and-client {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Dos columnas de igual ancho */
-    gap: 15px; /* Espacio entre los campos */
-    margin-bottom: 20px; /* Espacio debajo de los buscadores */
+/* Estilos para controles de tabla */
+.table-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+.section-heading-with-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.section-heading-with-controls h3 {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+    font-size: 1.5em;
+}
+.search-bar-table {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #f0f2f5;
+    border-radius: 8px;
+    padding: 8px 15px;
+    width: 300px;
+}
+.search-bar-table i {
+    color: #888;
+    margin-right: 10px;
+}
+.search-bar-table input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 1em;
+    padding: 0;
+    color: #333;
+    width: calc(100% - 30px);
+}
+.search-bar-table input::placeholder {
+    color: #aaa;
 }
 
+/* --- Estilos para el POS (Punto de Venta) --- */
+.pos-search-and-client {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
 .pos-search {
     position: relative;
-    margin-bottom: 0; /* Elimina el margen inferior si ya está en el grid */
+    margin-bottom: 0;
 }
 .pos-search input[type="text"] {
     padding: 12px;
     font-size: 1.1em;
     border: 1px solid #ced4da;
     border-radius: 8px;
-    width: calc(100% - 24px); /* Ajuste por padding */
+    width: calc(100% - 24px);
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
 .sugerencias-lista {
     list-style: none;
     padding: 0;
     margin: 0;
-    border: 1px solid #e0e0e0;
     border-radius: 8px;
     max-height: 200px;
     overflow-y: auto;
     background-color: #fff;
     position: absolute;
-    width: calc(100% - 2px); /* Ajuste por el borde */
+    width: calc(100% - 2px);
     z-index: 10;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
@@ -535,10 +761,9 @@ table tbody tr.expired {
     text-align: center;
     vertical-align: middle;
 }
-#tabla-carrito td:nth-child(1) { /* Nombre del producto */
+#tabla-carrito td:nth-child(1) {
     text-align: left;
 }
-
 .cantidad-control {
     display: flex;
     align-items: center;
@@ -546,7 +771,7 @@ table tbody tr.expired {
     gap: 5px;
 }
 .cantidad-control button {
-    background-color: #e9ecef; /* Color más suave para los botones +/- */
+    background-color: #e9ecef;
     color: #495057;
     border: 1px solid #ced4da;
     padding: 5px 10px;
@@ -573,19 +798,6 @@ table tbody tr.expired {
     gap: 5px;
     align-items: center;
 }
-.btn-quitar-carrito {
-    background-color: #ff4d4d; /* Rojo más vibrante */
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s ease;
-}
-.btn-quitar-carrito:hover {
-    background-color: #cc0000;
-}
 
 .pos-resumen {
     text-align: right;
@@ -596,25 +808,15 @@ table tbody tr.expired {
 }
 #total-venta {
     font-size: 1.8em;
-    color: #28a745; /* Verde para el total final */
+    color: #28a745;
     font-weight: bold;
 }
 #btn-registrar-venta {
-    padding: 18px 30px; /* Botón grande y prominente */
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1.3em;
-    margin-top: 20px;
-    box-shadow: 0 4px 15px rgba(0,123,255,0.4);
+    padding: 18px 30px;
 }
 #btn-registrar-venta:hover {
-    background-color: #0056b3;
-    box-shadow: 0 6px 20px rgba(0,123,255,0.5);
+    /* box-shadow: 0 6px 20px rgba(0,123,255,0.5); */
 }
-
 .pos-opciones-pago {
     border-top: 1px solid #f0f0f0;
     padding-top: 20px;
@@ -627,7 +829,6 @@ table tbody tr.expired {
 .pos-opciones-pago label {
     font-weight: 600;
 }
-
 #div-efectivo-cambio {
     grid-column: 1 / 3;
     display: flex;
@@ -635,9 +836,9 @@ table tbody tr.expired {
     align-items: center;
     gap: 10px;
     padding: 15px;
-    border: 1px solid #d1ecf1; /* Borde azul claro */
+    border: 1px solid #d1ecf1;
     border-radius: 8px;
-    background-color: #e0f7fa; /* Fondo azul claro */
+    background-color: #e0f7fa;
     margin-top: 15px;
 }
 #div-efectivo-cambio label {
@@ -647,9 +848,11 @@ table tbody tr.expired {
 }
 #div-efectivo-cambio input {
     flex-grow: 1;
-    max-width: 180px; /* Ancho ligeramente mayor */
+    max-width: 180px;
     background-color: #ffffff;
     border: 1px solid #a7d9f1;
+    border-radius: 8px;
+    padding: 12px;
 }
 #div-efectivo-cambio p {
     flex-basis: 100%;
@@ -662,25 +865,25 @@ table tbody tr.expired {
     font-size: 1.5em;
     font-weight: bold;
 }
-#monto-cambio[style*="rgb(220, 53, 69)"] { /* Rojo si es negativo */
+#monto-cambio[style*="rgb(220, 53, 69)"] {
     color: #dc3545 !important;
 }
-#monto-cambio[style*="rgb(40, 167, 69)"] { /* Verde si es positivo */
+#monto-cambio[style*="rgb(40, 167, 69)"] {
     color: #28a745 !important;
 }
-
-
-/* Modificación de .pos-cliente-selector para estar al lado de .pos-search */
 .pos-cliente-selector {
     position: relative;
-    margin-bottom: 0; /* Elimina el margen inferior si ya está en el grid */
-    padding-bottom: 0; /* Elimina el padding inferior */
-    border-bottom: none; /* Elimina el borde inferior */
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
 }
 .pos-cliente-selector input[type="text"] {
-    width: calc(100% - 24px);
-    background-color: #ffffff;
+    padding: 12px;
+    font-size: 1.1em;
     border: 1px solid #ced4da;
+    border-radius: 8px;
+    width: calc(100% - 24px);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
 .cliente-info-pos {
     display: block;
@@ -690,24 +893,15 @@ table tbody tr.expired {
     font-weight: 600;
 }
 #btn-quitar-cliente {
-    background-color: #f8f9fa;
-    color: #6c757d;
-    border: 1px solid #ced4da;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.85em;
-    margin-left: 10px;
+    /* ... */
 }
-#btn-quitar-cliente:hover {
-    background-color: #e2e6ea;
-}
-/* Asegura que las listas de sugerencias (clientes y productos) se posicionen correctamente */
 #sugerencias-clientes-pos {
     position: absolute;
     width: 100%;
     z-index: 10;
-    top: calc(100% + 5px); /* Colocar debajo del input */
+    top: calc(100% + 5px);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 /* --- Estilos para Reportes --- */
@@ -717,7 +911,7 @@ table tbody tr.expired {
     gap: 15px;
     margin-bottom: 25px;
     align-items: center;
-    justify-content: center; /* Centrar controles */
+    justify-content: center;
 }
 .reporte-controles label {
     font-weight: 600;
@@ -730,15 +924,7 @@ table tbody tr.expired {
     border-radius: 5px;
     font-size: 1em;
 }
-.reporte-controles button {
-    background-color: #6c757d;
-    color: white;
-    cursor: pointer;
-    border: none;
-}
-.reporte-controles button:hover {
-    background-color: #5a6268;
-}
+
 .resumen-reporte {
     margin-top: 30px;
     padding-top: 20px;
@@ -748,7 +934,7 @@ table tbody tr.expired {
     font-size: 1.6em;
     color: #28a745;
     font-weight: bold;
-    display: block; /* Para que ocupe su propia línea */
+    display: block;
     text-align: right;
     margin-bottom: 20px;
 }
@@ -756,11 +942,9 @@ table tbody tr.expired {
 #tabla-productos-mas-vendidos th, #tabla-productos-mas-vendidos td {
     text-align: left;
 }
-/* Reutiliza los estilos de tabla generales */
-
 
 /* --- Estilos para Recepción de Mercancía --- */
-.recepcion-controles {
+.recepcion-controles { 
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 15px;
@@ -776,48 +960,23 @@ table tbody tr.expired {
 .recepcion-controles label {
     font-weight: 600;
     color: #444;
-}
-.recepcion-controles input[type="text"],
-.recepcion-controles input[type="number"] {
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
-    width: calc(100% - 24px);
-    box-sizing: border-box;
-}
-#producto-seleccionado-recepcion {
-    grid-column: 1 / 3;
-    font-weight: bold;
-    color: #007bff;
-    margin-top: -8px;
-    margin-bottom: 8px;
-    text-align: center;
-    font-size: 1.1em;
+    text-align: right;
+    padding-right: 15px;
+    align-self: center;
 }
 .recepcion-controles button {
     grid-column: 1 / 3;
-    padding: 12px 20px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1.1em;
+    justify-self: center;
+    width: auto;
+    max-width: 250px;
     margin-top: 15px;
-    box-shadow: 0 4px 10px rgba(40,167,69,0.3);
 }
-.recepcion-controles button:hover {
-    background-color: #218838;
-    box-shadow: 0 6px 15px rgba(40,167,69,0.4);
-}
-
 #sugerencias-recepcion {
     grid-column: 1 / 3;
     position: absolute;
-    /* Ajusta top dinámicamente o con un valor fijo que funcione */
-    top: 115px; /* Aproximadamente la altura de la primera fila del grid + padding */
-    left: 20px; /* Alineado con el padding del contenedor */
-    right: 20px; /* Alineado con el padding del contenedor */
+    top: 115px;
+    left: 20px;
+    right: 20px;
     width: auto;
     background-color: #fff;
     z-index: 11;
@@ -828,27 +987,39 @@ table tbody tr.expired {
     overflow-y: auto;
 }
 /* Reutilizamos estilos de sugerencias-lista */
-/* Ya definidos globalmente arriba */
-
+.sugerencias-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.sugerencias-lista li {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+.sugerencias-lista li:last-child {
+    border-bottom: none;
+}
+.sugerencias-lista li:hover {
+    background-color: #f5f5f5;
+}
 #tabla-recepciones th, #tabla-recepciones td {
     text-align: left;
 }
-
-
 /* --- Estilos para Modales (Ventanas Emergentes) --- */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000; /* Asegura que esté sobre todo, incluyendo el header */
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.6); /* Fondo más oscuro para enfoque */
+    background-color: rgba(0,0,0,0.6);
     padding-top: 60px;
 }
-
 .modal-content {
     background-color: #ffffff;
     margin: 5% auto;
@@ -856,38 +1027,57 @@ table tbody tr.expired {
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     width: 90%;
-    max-width: 550px; /* Ligeramente más grande */
+    max-width: 550px;
     position: relative;
 }
-
 .close-button {
     color: #888;
     float: right;
     font-size: 30px;
     font-weight: bold;
     cursor: pointer;
-    line-height: 1; /* Asegura que la X no se salga */
-    padding: 5px; /* Área de clic más grande */
+    line-height: 1;
+    padding: 5px;
 }
 .close-button:hover,
 .close-button:focus {
-    color: #333;
+    color: black;
     text-decoration: none;
 }
 
-/* Reutilizar estilos de formulario para los formularios de edición dentro del modal */
+/* Formularios dentro de modales (edición de producto/cliente) */
 #form-editar-producto, #form-editar-cliente {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
     padding: 0;
     border: none;
     background-color: transparent;
 }
-#form-editar-producto button[type="submit"],
-#form-editar-cliente button[type="submit"] {
-    background-color: #28a745; /* Verde para guardar cambios */
+#form-editar-producto label, #form-editar-cliente label {
+    font-weight: 600;
+    color: #495057;
+    text-align: right;
+    padding-right: 15px;
+    align-self: center;
 }
-#form-editar-producto button[type="submit"]:hover,
-#form-editar-cliente button[type="submit"]:hover {
-    background-color: #218838;
+#form-editar-producto textarea, #form-editar-cliente textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+#form-editar-producto button[type="submit"], #form-editar-cliente button[type="submit"] {
+    grid-column: 1 / 3;
+    padding: 12px 20px;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+    justify-self: center;
+    width: auto;
+    max-width: 250px;
 }
 
 /* Estilos para el Modal de Factura (pantalla) */
@@ -898,7 +1088,7 @@ table tbody tr.expired {
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     width: 90%;
-    max-width: 650px; /* Ancho para factura en pantalla */
+    max-width: 650px;
     position: relative;
 }
 
@@ -923,10 +1113,10 @@ table tbody tr.expired {
     border-collapse: collapse;
     margin-bottom: 20px;
     font-size: 0.9em;
-    border: 1px solid #e0e0e0; /* Borde de tabla para pantalla */
+    border: 1px solid #e0e0e0;
 }
 .factura-tabla th, .factura-tabla td {
-    border: 1px solid #f0f0f0; /* Bordes de celda para pantalla */
+    border: 1px solid #f0f0f0;
     padding: 10px;
     text-align: left;
 }
@@ -934,9 +1124,9 @@ table tbody tr.expired {
     background-color: #f8f8f8;
     font-weight: bold;
 }
-.factura-tabla td:nth-child(1), /* Cantidad */
-.factura-tabla td:nth-child(3), /* P. Unit. */
-.factura-tabla td:nth-child(4) { /* Subtotal */
+.factura-tabla td:nth-child(1),
+.factura-tabla td:nth-child(3),
+.factura-tabla td:nth-child(4) {
     text-align: right;
     white-space: nowrap;
 }
@@ -954,49 +1144,34 @@ table tbody tr.expired {
 }
 .factura-totales strong {
     font-size: 1.4em;
-    color: #007bff; /* Color de acento para el total */
+    color: #007bff;
 }
-
 #btn-imprimir-factura {
-    display: block;
-    width: 100%;
-    padding: 15px 20px;
-    background-color: #28a745; /* Verde para imprimir */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1.2em;
-    margin-top: 25px;
-    box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+    /* ... */
 }
 #btn-imprimir-factura:hover {
-    background-color: #218838;
-    box-shadow: 0 6px 15px rgba(40,167,69,0.4);
+    /* ... */
 }
-
 /* --- Estilos para IMPRESIÓN (Especialmente para impresoras de recibos) --- */
 @media print {
     body {
-        visibility: hidden; /* Oculta TODO el cuerpo por defecto */
+        visibility: hidden;
         margin: 0;
         padding: 0;
-        font-family: 'Consolas', 'Monaco', monospace; /* Fuentes monoespaciadas son comunes en recibos */
-        font-size: 11px; /* Tamaño de fuente pequeño */
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 11px;
         line-height: 1.2;
         color: black !important;
         background-color: white !important;
-        -webkit-print-color-adjust: exact; /* Para Chrome/Safari: imprime colores y fondos */
-        print-color-adjust: exact; /* Estándar */
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
-
-    /* Asegura que el modal de factura sea el único visible y que ocupe la página */
     #modal-factura {
         visibility: visible;
         position: absolute;
         left: 0;
         top: 0;
-        width: 100%; /* Ocupa el ancho completo del viewport de impresión */
+        width: 100%;
         height: auto;
         overflow: visible;
         background-color: white !important;
@@ -1006,23 +1181,18 @@ table tbody tr.expired {
         padding: 0 !important;
         margin: 0 !important;
     }
-
     .modal-content-factura {
-        width: 280px; /* Ancho fijo para simular un recibo de 80mm (~2.8 pulgadas). Ajusta este valor si tu impresora es de 58mm (aprox. 200px) */
-        margin: 0 auto !important; /* Centra el contenido en la página de impresión */
-        padding: 10px !important; /* Padding interno para el contenido del recibo */
+        width: 280px;
+        margin: 0 auto !important;
+        padding: 10px !important;
         border: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
         background-color: white !important;
     }
-
-    /* Oculta los elementos interactivos dentro del modal de factura al imprimir */
     .close-button, #btn-imprimir-factura {
         display: none !important;
     }
-
-    /* Ajustes específicos para la tabla de la factura en impresión */
     .factura-tabla {
         width: 100%;
         margin-bottom: 5px;
@@ -1040,30 +1210,28 @@ table tbody tr.expired {
         font-weight: bold;
         background-color: transparent !important;
     }
-    .factura-tabla td:nth-child(1) { /* Cantidad */
+    .factura-tabla td:nth-child(1) {
         width: 15%;
         text-align: left;
     }
-    .factura-tabla td:nth-child(2) { /* Producto */
+    .factura-tabla td:nth-child(2) {
         width: 55%;
         word-wrap: break-word;
         white-space: normal;
     }
-    .factura-tabla td:nth-child(3), /* P. Unit. */
-    .factura-tabla td:nth-child(4) { /* Subtotal */
+    .factura-tabla td:nth-child(3),
+    .factura-tabla td:nth-child(4) {
         width: 15%;
         text-align: right;
         white-space: nowrap;
     }
-
-    /* Ajustes para encabezado, pie y totales de la factura */
     .factura-header, .factura-footer, .factura-totales {
         font-size: 11px;
         margin-bottom: 5px;
         padding-bottom: 5px;
         padding-top: 0;
-        border-bottom: none; /* Eliminar el borde inferior del header */
-        border-top: none; /* Eliminar el borde superior de los totales */
+        border-bottom: none;
+        border-top: none;
     }
     .factura-header p, .factura-footer p, .factura-totales p {
         margin: 2px 0;
@@ -1079,67 +1247,56 @@ table tbody tr.expired {
         display: block !important;
     }
 }
-
-
-/* --- Media Queries para Responsive Design (tablets y móviles) --- */
+/* --- Media Queries para Responsive Design --- */
 @media (max-width: 768px) {
     .app-wrapper {
-        flex-direction: column; /* Apila el sidebar y el contenido principal */
+        flex-direction: column;
     }
-    /* Estilos para el sidebar cuando está oculto en móvil */
     .sidebar {
-        position: fixed; /* Lo hacemos fijo en móvil también para que no haga scroll con el contenido */
-        left: -250px; /* Oculto fuera de la pantalla por defecto */
-        width: 250px; /* Su ancho fijo sigue siendo 250px */
+        position: fixed;
+        left: -250px;
+        width: 250px;
         height: 100vh;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.2); /* Sombra para cuando aparezca */
-        transition: left 0.3s ease; /* Transición suave para que se deslice */
-        z-index: 100; /* Asegura que cubra el contenido al aparecer */
-        background-color: #ffffff; /* Fondo para cuando se deslice */
-        /* Asegura que el contenido interno del sidebar no se oculte al colapsar,
-           porque en móvil no se colapsa, solo se muestra/oculta completamente */
+        box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+        transition: left 0.3s ease;
+        z-index: 100;
+        background-color: #ffffff;
     }
-    /* Estilos para el sidebar cuando está ACTIVO (visible) en móvil */
     .sidebar.active-mobile {
-        left: 0; /* Lo muestra deslizándose desde la izquierda */
+        left: 0;
     }
-    /* Resetear estilos de colapsado para móvil, si se aplican desde el escritorio */
     .sidebar.collapsed { 
-        width: 250px; /* Asegura ancho completo en móvil aunque esté colapsado en desktop */
+        width: 250px;
     }
     .sidebar.collapsed .app-name,
     .sidebar.collapsed .sidebar-footer {
-        display: block; /* Muestra el nombre y footer en móvil */
+        display: block;
     }
     .sidebar.collapsed .sidebar-nav .nav-link {
-        justify-content: flex-start; /* Alinea los ítems a la izquierda */
+        justify-content: flex-start;
         padding: 12px 20px;
         margin: 0 10px;
     }
     .sidebar.collapsed .sidebar-nav .nav-link i {
         margin-right: 10px;
     }
-
-
     .sidebar-header {
-        justify-content: center; /* Centrar el logo y nombre */
+        justify-content: center;
         padding-bottom: 15px;
         margin-bottom: 15px;
     }
-    /* OCULTA EL BOTÓN DE TOGGLE DENTRO DEL SIDEBAR EN MÓVILES */
     .sidebar .toggle-sidebar-btn {
-        display: none; /* No se muestra en el sidebar móvil */
+        display: none;
     }
     .sidebar-nav {
-        /* display: none; */ /* Ya lo manejamos con 'left: -250px;' y 'active-mobile' */
-        position: static; /* No flotar, sino fluir con el contenido dentro del sidebar */
+        position: static;
         width: 100%;
         box-shadow: none;
         border-radius: 0;
-        margin-top: 0; /* No hay margen superior */
+        margin-top: 0;
         padding-top: 0;
     }
-    .sidebar-nav.active { /* Esta clase podría usarse si el sidebar se mostraba con display:block/none */
+    .sidebar-nav.active {
         display: block;
     }
     .sidebar-nav li {
@@ -1154,68 +1311,61 @@ table tbody tr.expired {
         border-bottom: none;
     }
     .sidebar-footer {
-        display: none; /* Ocultar footer del sidebar en móvil si hay poco espacio */
+        display: none;
     }
     
-    /* Mostrar el botón de toggle en el MAIN HEADER para móviles */
-    /* Este es el botón que controlaría el sidebar en mobile */
-    .main-header .toggle-sidebar-btn-mobile-header { /* Necesitas darle esta clase/ID en index.html */
-        display: block; /* Muestra el botón en móvil */
+    .mobile-menu-toggle {
+        display: block;
         font-size: 1.8em;
         color: #555;
         cursor: pointer;
+        padding: 0;
+        line-height: 1;
         margin-right: 15px;
     }
-
-
-    /* Ajustes para el header en móvil (no fijo) */
     .main-header {
-        position: static; /* Ya no es fijo, fluye con el contenido */
+        position: static;
         width: 100%;
-        left: auto; /* Restablecer */
-        right: auto; /* Restablecer */
+        left: auto;
+        right: auto;
         padding: 15px 20px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .main-content-wrapper {
-        margin-left: 0; /* Elimina el margen en móvil */
-        padding-top: 0; /* No necesita padding superior si el header no es fijo */
+        margin-left: 0;
+        padding-top: 0;
     }
-
     .main-header {
-        flex-direction: column; /* Apilar elementos del header */
+        flex-direction: column;
         align-items: flex-start;
         gap: 15px;
     }
     .header-left, .header-right {
         width: 100%;
-        justify-content: space-between; /* Espacio entre la barra de búsqueda y los iconos */
+        justify-content: space-between;
     }
     .search-bar {
-        width: auto; /* Ancho automático para la barra de búsqueda */
-        flex-grow: 1; /* Permite que la barra de búsqueda crezca */
+        width: auto;
+        flex-grow: 1;
     }
     .search-bar input {
-        width: calc(100% - 30px); /* Ajuste del ancho del input de búsqueda */
+        width: calc(100% - 30px);
     }
     .app-main-container {
         padding: 20px;
     }
-
-    /* Formularios y tablas */
-    .form-container form, .pos-opciones-pago, .recepcion-controles {
-        grid-template-columns: 1fr; /* Una columna para formularios */
+    .form-container form, .pos-opciones-pago {
+        grid-template-columns: 1fr;
     }
-    .form-container form button, .pos-opciones-pago button, .recepcion-controles button {
-        grid-column: 1 / 2; /* Ocupa solo una columna */
+    .form-container form button, .pos-opciones-pago button {
+        grid-column: 1 / 2;
     }
     .form-container form label, .form-container form input:not([type="checkbox"]),
-    .pos-opciones-pago label, .pos-opciones-pago input, .pos-opciones-pago select,
-    .recepcion-controles label, .recepcion-controles input {
-        grid-column: auto; /* Eliminar columna fija para que fluyan */
+    .pos-opciones-pago label, .pos-opciones-pago input, .pos-opciones-pago select {
+        grid-column: auto;
     }
     .form-container form button[type="submit"], .form-container form button.btn-secondary {
-        justify-self: stretch; /* Estirar botones en móviles */
+        justify-self: stretch;
     }
     .reporte-controles {
         flex-direction: column;
@@ -1224,14 +1374,12 @@ table tbody tr.expired {
     .reporte-controles input, .reporte-controles button {
         width: 100%;
     }
-
-    /* Ajustes específicos para el POS en pantallas pequeñas */
     .pos-search-and-client {
-        grid-template-columns: 1fr; /* Una columna para que se apilen */
+        grid-template-columns: 1fr;
         gap: 10px;
     }
     .pos-opciones-pago {
-        grid-template-columns: 1fr; /* Una columna para opciones de pago */
+        grid-template-columns: 1fr;
     }
     #div-efectivo-cambio {
         flex-direction: column;
@@ -1247,10 +1395,8 @@ table tbody tr.expired {
         padding-bottom: 5px;
         margin-bottom: 5px;
     }
-
-    /* Ajustes específicos para Recepción de Mercancía en pantallas pequeñas */
     #sugerencias-recepcion {
-        position: static; /* No flotar en móviles */
+        position: static;
         width: 100%;
         left: auto;
         right: auto;

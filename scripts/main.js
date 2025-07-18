@@ -1,9 +1,13 @@
 // scripts/main.js
 
-// ** Variables para el menú lateral (sidebar) y su botón de toggle **
+// ** Variables para el menú lateral (sidebar) y sus botones de toggle **
 const sidebar = document.getElementById('sidebar');
 const navMenuLinks = document.querySelectorAll('.sidebar-nav .nav-link'); // Enlaces del menú lateral
-const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn'); // Botón de toggle en el header principal
+const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn'); // Botón de toggle DENTRO del sidebar-header (para escritorio)
+const mobileMenuToggle = document.getElementById('mobile-menu-toggle'); // Botón de toggle en el MAIN HEADER (para móviles)
+
+const appWrapper = document.querySelector('.app-wrapper'); // Contenedor principal de la aplicación
+
 
 // ** Función para mostrar una sección y ocultar las demás **
 const showSection = (sectionId) => {
@@ -39,7 +43,7 @@ const showSection = (sectionId) => {
     // Cierra el sidebar en dispositivos móviles después de seleccionar una opción
     if (window.innerWidth <= 768 && sidebar.classList.contains('active-mobile')) {
         sidebar.classList.remove('active-mobile');
-        // Si usas un overlay de fondo, aquí lo quitarías:
+        // Opcional: Si usas un overlay de fondo oscuro para el sidebar móvil:
         // document.body.classList.remove('overlay-active'); 
         console.debug("Sidebar móvil cerrado automáticamente al seleccionar sección.");
     }
@@ -72,23 +76,31 @@ const showSection = (sectionId) => {
     console.groupEnd();
 };
 
-// ** Event listener para mostrar/ocultar el sidebar **
-if (toggleSidebarBtn && sidebar) {
+// ** Event listener para el botón de ocultar/mostrar sidebar (dentro del sidebar) **
+if (toggleSidebarBtn && sidebar && appWrapper) {
     toggleSidebarBtn.addEventListener('click', () => {
-        if (window.innerWidth <= 768) { // Lógica para móviles
-            sidebar.classList.toggle('active-mobile');
-            // Si quieres un overlay oscuro detrás del sidebar en móvil, añade una clase al body:
-            // document.body.classList.toggle('overlay-active');
-            console.log("Toggle de sidebar móvil clicado.");
-        } else { // Lógica para escritorio (colapsar/expandir)
+        if (window.innerWidth <= 768) { // Si es móvil, este botón no debería verse (CSS lo oculta)
+            sidebar.classList.toggle('active-mobile'); // Pero si por alguna razón se viera y se clicara
+            console.log("Toggle de sidebar móvil clicado (desde el sidebar).");
+        } else { // Lógica para escritorio (colapsar/expandir a iconos)
             sidebar.classList.toggle('collapsed');
-            // Asegúrate de que el app-wrapper también tenga la clase para ajustar el contenido
-            document.querySelector('.app-wrapper').classList.toggle('sidebar-collapsed');
+            appWrapper.classList.toggle('sidebar-collapsed'); // Toggle la clase en el contenedor principal
             console.log("Toggle de sidebar de escritorio clicado. Sidebar colapsado:", sidebar.classList.contains('collapsed'));
         }
     });
 } else {
-    console.warn("Botón de toggle de sidebar o elementos relacionados no encontrados. Verifica los IDs en index.html.");
+    console.warn("Botón de toggle de sidebar (dentro del sidebar) o elementos relacionados no encontrados.");
+}
+
+// ** Event listener para el botón de menú móvil (en el main-header) **
+if (mobileMenuToggle && sidebar) {
+    mobileMenuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active-mobile');
+        // Opcional: document.body.classList.toggle('overlay-active'); // Si usas overlay
+        console.log("Toggle de menú móvil clicado (desde el header).");
+    });
+} else {
+    console.warn("Botón de menú móvil (en el header) o sidebar no encontrados. Verifica los IDs en index.html.");
 }
 
 
@@ -122,22 +134,19 @@ window.addEventListener('click', (event) => {
         console.debug("Modal de factura cerrado (clic fuera).");
     }
     
-    // Cierra el sidebar móvil si está abierto y se hace clic fuera de él o de su botón de toggle
-    if (window.innerWidth <= 768 && sidebar.classList.contains('active-mobile') &&
-        !sidebar.contains(event.target) && event.target !== toggleSidebarBtn) {
+    // Cierra el sidebar móvil si está abierto y se hace clic fuera de él o de sus botones de toggle
+    // Aseguramos que 'sidebar' y 'toggleSidebarBtn' existan antes de usarlos
+    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('active-mobile') &&
+        !sidebar.contains(event.target) && event.target !== toggleSidebarBtn && event.target !== mobileMenuToggle) { 
         
         sidebar.classList.remove('active-mobile');
-        // Si usas un overlay de fondo, aquí lo quitarías:
-        // document.body.classList.remove('overlay-active');
-        console.debug("Sidebar móvil cerrado (clic fuera o fuera del botón de toggle).");
+        // Opcional: document.body.classList.remove('overlay-active');
+        console.debug("Sidebar móvil cerrado (clic fuera o fuera de los botones de toggle).");
     }
 });
 
 
 // ** Lógica para manejar el botón "Añadir Nuevo Producto" en la sección de Inventario **
-// Estos elementos DOM son específicos de la sección de inventario,
-// pero su lógica de mostrar/ocultar el formulario puede estar aquí
-// si se considera parte del control de la UI general.
 const btnShowAddProductForm = document.getElementById('btn-show-add-product-form');
 const addProductFormContainer = document.getElementById('add-product-form-container');
 const btnCancelAddProduct = document.getElementById('btn-cancel-add-product');
@@ -153,13 +162,41 @@ if (btnShowAddProductForm && addProductFormContainer && btnCancelAddProduct) {
         addProductFormContainer.classList.remove('active'); // Oculta el formulario
         btnShowAddProductForm.style.display = 'block'; // Muestra el botón
         // Opcional: Llamar a la función de reset del formulario si existe en inventory.js
-        if (typeof document.getElementById('form-agregar-producto').reset === 'function') {
-            document.getElementById('form-agregar-producto').reset();
+        const formAgregarProducto = document.getElementById('form-agregar-producto');
+        if (formAgregarProducto && typeof formAgregarProducto.reset === 'function') {
+            formAgregarProducto.reset();
         }
         console.log("Formulario 'Añadir Nuevo Producto' ocultado.");
     });
 } else {
     console.warn("Elementos del formulario de añadir producto no encontrados. Verifica los IDs en index.html.");
+}
+
+
+// ** Lógica para manejar el botón "Añadir Nuevo Cliente" en la sección de Clientes **
+const btnShowAddClientForm = document.getElementById('btn-show-add-client-form');
+const addClientFormContainer = document.getElementById('add-client-form-container');
+const btnCancelAddClient = document.getElementById('btn-cancel-add-client');
+
+if (btnShowAddClientForm && addClientFormContainer && btnCancelAddClient) {
+    btnShowAddClientForm.addEventListener('click', () => {
+        addClientFormContainer.classList.add('active'); // Muestra el formulario
+        btnShowAddClientForm.style.display = 'none'; // Oculta el botón
+        console.log("Formulario 'Añadir Nuevo Cliente' mostrado.");
+    });
+
+    btnCancelAddClient.addEventListener('click', () => {
+        addClientFormContainer.classList.remove('active'); // Oculta el formulario
+        btnShowAddClientForm.style.display = 'block'; // Muestra el botón
+        // Opcional: Llamar a la función de reset del formulario si existe
+        const formAgregarCliente = document.getElementById('form-agregar-cliente');
+        if (formAgregarCliente && typeof formAgregarCliente.reset === 'function') {
+            formAgregarCliente.reset();
+        }
+        console.log("Formulario 'Añadir Nuevo Cliente' ocultado.");
+    });
+} else {
+    console.warn("Elementos del formulario de añadir cliente no encontrados. Verifica los IDs en index.html.");
 }
 
 
