@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventix - Colmado App</title>
+    <link rel="stylesheet" href="styles/main.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="app-wrapper">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="Inventix Logo" class="app-logo">
+                <span class="app-name">Inventix</span>
+                <button class="toggle-sidebar-btn" id="toggle-sidebar-btn">
+                    &#9776; </button>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" data-section="home" class="nav-link active"><i class="icon-home"></i> <span>Inicio</span></a></li>
+                    <li><a href="#" data-section="venta-seccion" class="nav-link"><i class="icon-pos"></i> <span>Punto de Venta</span></a></li>
+                    <li><a href="#" data-section="clientes-seccion" class="nav-link"><i class="icon-clients"></i> <span>Clientes</span></a></li>
+                    <li><a href="#" data-section="reportes-seccion" class="nav-link"><i class="icon-reports"></i> <span>Reportes</span></a></li>
+                    <li><a href="#" data-section="recepcion-mercancia-seccion" class="nav-link"><i class="icon-reception"></i> <span>Recepción Mercancía</span></a></li>
+                    <li><a href="#" data-section="inventario-seccion" class="nav-link"><i class="icon-inventory"></i> <span>Inventario</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2025 Inventix. Todos los derechos reservados.</p>
+            </div>
+        </aside>
+
+        <div class="main-content-wrapper">
+            <header class="main-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                        &#9776; </button>
+                    <div class="search-bar">
+                        <i class="icon-search"></i>
+                        <input type="text" placeholder="Buscar...">
+                    </div>
+                </div>
+                <div class="header-right">
+                    <i class="icon-notification"></i>
+                    <i class="icon-user"></i>
+                    <span class="user-name">Usuario Actual</span>
+                </div>
+            </header>
+
+            <main class="app-main-container">
+                <section id="home" class="app-section active">
+                    <h2>Panel Principal</h2>
+                    <div class="dashboard-cards-container">
+                        <div class="dashboard-card primary-total">
+                            <div class="card-content">
+                                <h4>Total de Ventas</h4>
+                                <p class="card-value">RD$ <span id="dashboard-total-ventas">0.00</span></p>
+                            </div>
+                            <div class="card-icon">
+                                <i class="icon-dollar"></i>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card secondary-total">
+                            <div class="card-content">
+                                <h4>Ganancias Estimadas</h4>
+                                <p class="card-value">RD$ <span id="dashboard-ganancias">0.00</span></p>
+                            </div>
+                            <div class="card-icon">
+                                <i class="icon-profit"></i>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card info-card">
+                            <div class="card-content">
+                                <h4>Total de Clientes</h4>
+                                <p class="card-value"><span id="dashboard-total-clientes">0</span></p>
+                            </div>
+                            <div class="card-icon">
+                                <i class="icon-users"></i>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card warning-card">
+                            <div class="card-content">
+                                <h4>Productos Próximos a Vencer</h4>
+                                <p class="card-value"><span id="dashboard-vencidos">0</span></p>
+                            </div>
+                            <div class="card-icon">
+                                <i class="icon-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-secondary-panels">
+                        <div class="dashboard-panel chart-panel">
+                            <h3>Ventas Mensuales</h3>
+                            <canvas id="ventas-mensuales-chart"></canvas>
+                        </div>
+                        <div class="dashboard-panel low-stock-panel">
+                            <h3>Productos con Bajo Stock</h3>
+                            <ul id="low-stock-list">
+                                <li class="low-stock-item">Cargando...</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </section>
+
+                <section id="inventario-seccion" class="app-section">
+                    <h2>Inventario</h2>
+                    <div class="section-header-controls">
+                        <button class="btn-primary" id="btn-show-add-product-form">
+                            <i class="icon-add-stock"></i> Añadir Nuevo Producto 
+                        </button>
+                    </div>
+
+                    <div id="add-product-form-container" class="form-container">
+                        <h3>Añadir Nuevo Producto</h3>
+                        <form id="form-agregar-producto">
+                            <label for="nombre-producto">Nombre:</label>
+                            <input type="text" id="nombre-producto" required>
+
+                            <label for="precio-compra">Precio Compra:</label>
+                            <input type="number" id="precio-compra" step="0.01" required>
+
+                            <label for="precio-venta">Precio Venta:</label>
+                            <input type="number" id="precio-venta" step="0.01" required>
+
+                            <label for="cantidad">Cantidad:</label>
+                            <input type="number" id="cantidad" required>
+
+                            <label for="stock-minimo">Stock Mínimo Alerta:</label>
+                            <input type="number" id="stock-minimo" value="5" required>
+
+                            <label for="fecha-vencimiento-check">Requiere Fecha Vencimiento:</label>
+                            <input type="checkbox" id="fecha-vencimiento-check">
+                            
+                            <div id="fecha-vencimiento-div" style="display:none;">
+                                <label for="fecha-vencimiento">Fecha Vencimiento:</label>
+                                <input type="date" id="fecha-vencimiento">
+                            </div>
+
+                            <button type="submit" class="btn-primary">Agregar Producto</button>
+                            <button type="button" class="btn-secondary" id="btn-cancel-add-product">Cancelar</button>
+                        </form>
+                    </div>
+                    
+                    <h3>Productos en Inventario</h3>
+                    <table id="tabla-productos">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Cantidad</th>
+                                <th>Precio Venta</th>
+                                <th>Fecha Venc.</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5">No hay productos en inventario.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="venta-seccion" class="app-section">
+                    <h2>Punto de Venta</h2>
+                    <h3>Nueva Venta</h3>
+                    
+                    <div class="pos-search-and-client">
+                        <div class="pos-search">
+                            <label for="buscar-producto-pos">Buscar Producto:</label>
+                            <input type="text" id="buscar-producto-pos" placeholder="Escribe el nombre del producto o escanea...">
+                            <ul id="sugerencias-pos" class="sugerencias-lista"></ul>
+                        </div>
+                        
+                        <div class="pos-cliente-selector">
+                            <label for="buscar-cliente-pos">Cliente (opcional):</label>
+                            <input type="text" id="buscar-cliente-pos" placeholder="Buscar cliente o dejar vacío">
+                            <ul id="sugerencias-clientes-pos" class="sugerencias-lista"></ul>
+                            <span id="cliente-seleccionado-pos" class="cliente-info-pos"></span>
+                            <button id="btn-quitar-cliente" class="btn-secondary" style="display:none;">Quitar Cliente</button>
+                            <input type="hidden" id="cliente-id-seleccionado">
+                        </div>
+                    </div>
+
+                    <h4>Productos en el Carrito:</h4>
+                    <table id="tabla-carrito">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5">No hay productos en el carrito.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="pos-resumen">
+                        <p>Total a Pagar: <strong id="total-venta">RD$ 0.00</strong></p>
+                        
+                        <div class="pos-opciones-pago">
+                            <label for="forma-pago">Forma de Pago:</label>
+                            <select id="forma-pago">
+                                <option value="efectivo">Efectivo</option>
+                                <option value="tarjeta">Tarjeta</option>
+                                <option value="transferencia">Transferencia</option>
+                            </select>
+
+                            <div id="div-efectivo-cambio" style="display:block;">
+                                <label for="monto-recibido">Monto Recibido:</label>
+                                <input type="number" id="monto-recibido" step="0.01" min="0">
+                                <p>Cambio: <strong id="monto-cambio">RD$ 0.00</strong></p>
+                            </div>
+                        </div>
+
+                        <button id="btn-limpiar-carrito" class="btn-secondary" style="margin-right: 10px;">Limpiar Carrito</button>
+                        <button id="btn-registrar-venta" class="btn-primary">Registrar Venta</button>
+                    </div>
+                </section>
+                
+                <section id="clientes-seccion" class="app-section">
+                    <h2>Clientes</h2>
+                    <div class="section-header-controls">
+                        <button class="btn-primary" id="btn-show-add-client-form">
+                            <i class="icon-add-stock"></i> <span></span>
+                        </button>
+                    </div>
+
+                    <div id="add-client-form-container" class="recepcion-controles form-container">
+                        <h3 class="form-title">Añadir Nuevo Cliente</h3>
+                        <form id="form-agregar-cliente">
+                            <label for="nombre-cliente">Nombre:</label>
+                            <input type="text" id="nombre-cliente" required>
+
+                            <label for="telefono-cliente">Teléfono:</label>
+                            <input type="tel" id="telefono-cliente">
+
+                            <label for="direccion-cliente">Dirección:</label>
+                            <input type="text" id="direccion-cliente">
+
+                            <label for="notas-cliente">Notas:</label>
+                            <textarea id="notas-cliente" rows="4"></textarea>
+
+                            <button type="submit" class="btn-primary">Agregar Cliente</button>
+                            <button type="button" class="btn-secondary" id="btn-cancel-add-client">Cancelar</button>
+                        </form>
+                    </div>
+                    
+                    <div class="section-heading-with-controls">
+                        <h3>Lista de Clientes</h3>
+                        <div class="search-bar-table">
+                            <i class="icon-search"></i>
+                            <input type="text" id="buscar-cliente-tabla" placeholder="Buscar cliente por nombre o teléfono...">
+                        </div>
+                    </div>
+
+                    <table id="tabla-clientes">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Dirección</th>
+                                <th>Notas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5">No hay clientes registrados.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                 <section id="recepcion-mercancia-seccion" class="app-section">
+                    <h2>Recepción de Mercancía</h2>
+                    <div class="section-header-controls">
+                        <button class="btn-primary" id="btn-show-add-reception-form">
+                            <i class="icon-add-stock"></i> <span>Registrar Entrada de Productos</span>
+                        </button>
+                    </div>
+
+                    <div id="add-reception-form-container" class="recepcion-controles form-container">
+                        <h3 class="form-title">Registrar Entrada de Productos</h3>
+                        <form id="form-registrar-recepcion">
+                            <label for="buscar-producto-recepcion">Buscar Producto:</label>
+                            <input type="text" id="buscar-producto-recepcion" placeholder="Escribe el nombre del producto">
+                            <ul id="sugerencias-recepcion" class="sugerencias-lista"></ul>
+                            
+                            <input type="hidden" id="producto-id-recepcion"> 
+                            <label>Producto Seleccionado:</label>
+                            <span id="producto-seleccionado-recepcion-display"></span> 
+                            
+                            <label for="cantidad-recibida">Cantidad Recibida:</label>
+                            <input type="number" id="cantidad-recibida" min="1" value="1" required>
+                            
+                            <label for="nuevo-precio-compra">Nuevo Precio Compra:</label>
+                            <input type="number" id="nuevo-precio-compra" step="0.01">
+
+                            <label for="nuevo-precio-venta">Nuevo Precio Venta:</label>
+                            <input type="number" id="nuevo-precio-venta" step="0.01">
+
+                            <button type="submit" class="btn-primary">Registrar Recepción</button>
+                            <button type="button" class="btn-secondary" id="btn-cancel-add-reception">Cancelar</button>
+                        </form>
+                    </div>
+
+                    
+                    <h4>Historial de Recepciones (Últimas 5):</h4>
+                    <table id="tabla-recepciones">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Producto</th>
+                                <th>Cantidad Recibida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="3">No hay recepciones registradas.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="reportes-seccion" class="app-section">
+                    <h2>Reportes</h2>
+                    <h3>Reporte de Ventas por Fecha</h3>
+                    <div class="reporte-controles">
+                        <label for="fecha-inicio-reporte">Fecha Inicio:</label>
+                        <input type="date" id="fecha-inicio-reporte">
+                        
+                        <label for="fecha-fin-reporte">Fecha Fin:</label>
+                        <input type="date" id="fecha-fin-reporte">
+                        
+                        <button id="btn-generar-reporte" class="btn-secondary">Generar Reporte</button>
+                    </div>
+
+                    <div class="resumen-reporte">
+                        <p>Total de Ventas en el Periodo: <strong id="total-ventas-reporte">RD$ 0.00</strong></p>
+                        <h4>Detalle de Ventas:</h4>
+                        <table id="tabla-ventas-reporte">
+                            <thead>
+                                <tr>
+                                    <th>Fecha y Hora</th>
+                                    <th>Productos Vendidos</th>
+                                    <th>Total Venta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="3">Selecciona un rango de fechas para generar el reporte.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Productos Más Vendidos</h3>
+                    <p>Este reporte se generará en base a las ventas del periodo seleccionado.</p>
+                    <table id="tabla-productos-mas-vendidos">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad Total Vendida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="2">Genera un reporte de ventas para ver los productos más vendidos.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="recepcion-mercancia-seccion" class="app-section">
+                    <h2>Recepción de Mercancía</h2>
+                    <div class="section-header-controls">
+                        <button class="btn-primary" id="btn-show-add-reception-form">
+                            <i class="icon-add-stock"></i> <span>Registrar Entrada de Productos</span>
+                        </button>
+                    </div>
+                    
+                    <div class="recepcion-controles">
+                        <h3 class="form-title">Registrar Entrada de Productos</h3>
+                        <form class="">
+                        <label for="buscar-producto-recepcion">Buscar Producto:</label>
+                        <input type="text" id="buscar-producto-recepcion" placeholder="Escribe el nombre del producto">
+                        <ul id="sugerencias-recepcion" class="sugerencias-lista"></ul>
+                        
+                        <input type="hidden" id="producto-id-recepcion"> 
+                        <span id="producto-seleccionado-recepcion"></span> 
+                        
+                        <label for="cantidad-recibida">Cantidad Recibida:</label>
+                        <input type="number" id="cantidad-recibida" min="1" value="1" required>
+                        
+                        <label for="nuevo-precio-compra">Nuevo Precio Compra:</label>
+                        <input type="number" id="nuevo-precio-compra" step="0.01">
+
+                        <label for="nuevo-precio-venta">Nuevo Precio Venta:</label>
+                        <input type="number" id="nuevo-precio-venta" step="0.01">
+
+                        <button id="btn-registrar-recepcion" class="btn-primary">Registrar Recepción</button>
+                        <button type="button" class="btn-secondary" id="btn-cancel-add-client">Cancelar</button>
+                        </form>
+                        
+                    </div>
+
+                    <h4>Historial de Recepciones (Últimas 5):</h4>
+                    <table id="tabla-recepciones">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Producto</th>
+                                <th>Cantidad Recibida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="3">No hay recepciones registradas.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <div id="modal-editar-producto" class="modal">
+                    <div class="modal-content">
+                        <span class="close-button" id="close-modal-producto">&times;</span>
+                        <h3>Editar Producto</h3>
+                        <form id="form-editar-producto">
+                            <input type="hidden" id="edit-producto-id">
+
+                            <label for="edit-nombre-producto">Nombre:</label>
+                            <input type="text" id="edit-nombre-producto" required>
+
+                            <label for="edit-precio-compra">Precio Compra:</label>
+                            <input type="number" id="edit-precio-compra" step="0.01" required>
+
+                            <label for="edit-precio-venta">Precio Venta:</label>
+                            <input type="number" id="edit-precio-venta" step="0.01" required>
+
+                            <label for="edit-cantidad">Cantidad:</label>
+                            <input type="number" id="edit-cantidad" required>
+
+                            <label for="edit-stock-minimo">Stock Mínimo Alerta:</label>
+                            <input type="number" id="edit-stock-minimo" required>
+
+                            <label for="edit-fecha-vencimiento-check">Requiere Fecha Vencimiento:</label>
+                            <input type="checkbox" id="edit-fecha-vencimiento-check">
+                            
+                            <div id="edit-fecha-vencimiento-div" style="display:none;">
+                                <label for="edit-fecha-vencimiento">Fecha Vencimiento:</label>
+                                <input type="date" id="edit-fecha-vencimiento">
+                            </div>
+
+                            <button type="submit" class="btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="modal-editar-cliente" class="modal">
+                    <div class="modal-content">
+                        <span class="close-button" id="close-modal-cliente">&times;</span>
+                        <h3>Editar Cliente</h3>
+                        <form id="form-editar-cliente">
+                            <input type="hidden" id="edit-cliente-id">
+
+                            <label for="edit-nombre-cliente">Nombre:</label>
+                            <input type="text" id="edit-nombre-cliente" required>
+
+                            <label for="edit-telefono-cliente">Teléfono:</label>
+                            <input type="tel" id="edit-telefono-cliente">
+
+                            <label for="edit-direccion-cliente">Dirección:</label>
+                            <input type="text" id="edit-direccion-cliente">
+
+                            <label for="edit-notas-cliente">Notas:</label>
+                            <textarea id="edit-notas-cliente" rows="3"></textarea>
+
+                            <button type="submit" class="btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="modal-factura" class="modal">
+                    <div class="modal-content-factura">
+                        <span class="close-button" id="close-modal-factura">&times;</span>
+                        <h3>Factura de Venta</h3>
+                        <div class="factura-header">
+                            <p><strong>Colmado App</strong></p>
+                            <p>Fecha: <span id="factura-fecha"></span></p>
+                            <p>Factura #: <span id="factura-numero"></span></p>
+                            <p>Cliente: <span id="factura-cliente"></span></p>
+                        </div>
+                        
+                        <table class="factura-tabla">
+                            <thead>
+                                <tr>
+                                    <th>Cant.</th>
+                                    <th>Producto</th>
+                                    <th>P. Unit.</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="factura-items-body">
+                                </tbody>
+                        </table>
+
+                        <div class="factura-totales">
+                            <p>Subtotal: <span id="factura-subtotal"></span></p>
+                            <p>Total: <strong id="factura-total"></strong></p>
+                            <p>Forma de Pago: <span id="factura-forma-pago"></span></p>
+                            <p id="factura-monto-recibido-line" style="display:none;">Monto Recibido: <span id="factura-monto-recibido"></span></p>
+                            <p id="factura-cambio-line" style="display:none;">Cambio: <span id="factura-cambio"></span></p>
+                        </div>
+
+                        <div class="factura-footer">
+                            <p>¡Gracias por su compra!</p>
+                        </div>
+                        
+                        <button id="btn-imprimir-factura">Imprimir Factura</button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="scripts/firebaseConfig.js"></script>
+    <script src="scripts/inventory.js"></script>
+    <script src="scripts/pos.js"></script>
+    <script src="scripts/clients.js"></script>
+    <script src="scripts/reports.js"></script>
+    <script src="scripts/reception.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,1498 @@
+/* --- Estilos Generales y Reseteo Básico --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente moderna y legible */
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5; /* Un fondo general más suave */
+    color: #333;
+    line-height: 1.6;
+}
+
+/* --- Estructura Principal de la Aplicación (inspirado en el diseño) --- */
+.app-wrapper {
+    display: flex; /* Usa flexbox para el layout lateral */
+    min-height: 100vh; /* Ocupa toda la altura de la ventana */
+    background-color: #f7f9fc; /* Fondo claro para el contenido principal */
+}
+
+/* --- Sidebar / Navegación Lateral --- */
+.sidebar {
+    width: 250px; /* Ancho fijo del sidebar */
+    background-color: #ffffff; /* Fondo blanco para el sidebar */
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05); /* Sombra sutil a la derecha */
+    display: flex;
+    flex-direction: column; /* Organiza el contenido verticalmente */
+    padding: 20px 0;
+    border-right: 1px solid #e0e0e0; /* Borde suave a la derecha */
+    
+    position: fixed; /* Hace que el elemento esté fijo en la pantalla */
+    height: 100vh;   /* Ocupa el 100% de la altura del viewport */
+    top: 0;          /* Lo fija en la parte superior */
+    left: 0;         /* Lo fija en la parte izquierda */
+    overflow-y: auto; /* Permite scroll interno si el contenido del sidebar es muy largo */
+    transition: width 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; /* Transiciones suaves */
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Distribuye espacio entre logo/nombre y el botón */
+    padding: 0 20px 20px; /* Padding inferior para separar del menú */
+    border-bottom: 1px solid #f0f0f0; /* Separador */
+    margin-bottom: 20px;
+    position: relative; /* Para posicionar el botón de toggle */
+}
+
+.app-logo {
+    width: 45px; /* TAMAÑO DEL LOGO AJUSTADO A 45PX */
+    height: 45px; /* TAMAÑO DEL LOGO AJUSTADO A 45PX */
+    margin-right: 10px;
+    border-radius: 8px; /* Bordes ligeramente redondeados para el logo */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    flex-shrink: 0; /* Asegura que el logo no se encoja */
+}
+
+.app-name {
+    font-size: 1em; /* TAMAÑO DEL NOMBRE AJUSTADO A 1EM */
+    font-weight: bold;
+    color: #2c3e50; /* Color oscuro para el nombre de la app */
+    white-space: nowrap; /* Evita que el texto del nombre se rompa */
+    flex-grow: 1; /* Permite que el nombre ocupe el espacio disponible */
+    margin-right: 10px; /* Espacio entre el nombre y el botón de toggle */
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav li {
+    margin-bottom: 5px;
+}
+
+.sidebar-nav .nav-link {
+    display: flex; /* Para alinear icono y texto */
+    align-items: center;
+    padding: 12px 20px;
+    color: #555; /* Color de texto normal */
+    text-decoration: none;
+    font-size: 1.0em;
+    border-radius: 8px; /* Bordes redondeados para los enlaces */
+    margin: 0 10px; /* Margen para que no toquen los bordes del sidebar */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: #e6f0ff; /* Fondo claro al pasar el mouse */
+    color: #007bff; /* Color de acento al pasar el mouse */
+}
+
+.sidebar-nav .nav-link.active {
+    background-color: #007bff; /* Color de acento para el enlace activo */
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.2); /* Sombra para resaltar activo */
+}
+
+/* Iconos de ejemplo (placeholders) */
+.sidebar-nav .nav-link i {
+    margin-right: 10px;
+    font-size: 1.2em;
+    min-width: 20px; /* Asegura un ancho mínimo para el icono */
+    text-align: center; /* Centra el icono si es más pequeño */
+}
+.icon-home::before { content: "🏠"; }
+.icon-inventory::before { content: "📦"; }
+.icon-pos::before { content: "🛒"; }
+.icon-clients::before { content: "🧑‍🤝‍🧑"; }
+.icon-reports::before { content: "📊"; }
+.icon-reception::before { content: "🚚"; }
+.icon-search::before { content: "🔍"; }
+.icon-notification::before { content: "🔔"; }
+.icon-user::before { content: "👤"; }
+.icon-add-stock::before { content: "➕"; }
+
+
+.sidebar-footer {
+    margin-top: auto; /* Empuja el footer al final del sidebar */
+    padding: 20px;
+    font-size: 0.8em;
+    color: #888;
+    text-align: center;
+    border-top: 1px solid #f0f0f0;
+    white-space: nowrap; /* Evita que el texto se rompa al colapsar */
+}
+
+/* --- BOTÓN DE TOGGLE DEL SIDEBAR (DENTRO DEL SIDEBAR-HEADER) --- */
+.toggle-sidebar-btn {
+    background-color: transparent;
+    border: none;
+    font-size: 1.8em; /* Tamaño grande para la hamburguesa */
+    color: #555;
+    cursor: pointer;
+    padding: 0; /* Elimina padding que podría mover el icono */
+    line-height: 1; /* Ajusta la altura de línea para centrar el símbolo */
+    transition: color 0.2s ease, transform 0.3s ease;
+    display: block; /* Visible por defecto en escritorio */
+    z-index: 60; /* Asegura que esté por encima de otros elementos del header */
+    margin-left: auto; /* Empuja el botón a la derecha */
+}
+.toggle-sidebar-btn:hover {
+    color: #007bff;
+    transform: scale(1.1); /* Efecto sutil al pasar el mouse */
+}
+
+/* --- ESTILOS PARA SIDEBAR COLAPSADO (ESCRITORIO) --- */
+.sidebar.collapsed {
+    width: 60px; /* Ancho reducido del sidebar */
+}
+.sidebar.collapsed .sidebar-header {
+    justify-content: center; /* Centra el logo cuando el texto desaparece */
+    padding: 0 10px 20px; /* Ajusta padding */
+    position: relative; /* Mantener la posición relativa para el botón de toggle */
+}
+.sidebar.collapsed .app-name,
+.sidebar.collapsed .sidebar-footer {
+    display: none; /* Oculta el nombre de la app y el footer al colapsar */
+}
+.sidebar.collapsed .app-logo {
+    margin-right: 0; /* Elimina el margen a la derecha del logo */
+    width: 40px; /* Ligeramente más pequeño el logo al colapsar para que quepa mejor */
+    height: 40px;
+}
+.sidebar.collapsed .toggle-sidebar-btn {
+    /* No rota la hamburguesa */
+    transform: translateY(0%); /* Restablece el transform (sin rotación para hamburguesa) */
+    position: absolute; /* Vuelve a ser absoluto para estar en la esquina */
+    right: 5px; /* Posición más ajustada al borde */
+    top: 25px; /* Ajuste manual para que quede al lado del logo */
+    color: #007bff; /* Cambia el color a acento cuando está colapsado */
+}
+
+
+.sidebar.collapsed .sidebar-nav .nav-link {
+    justify-content: center; /* Centra los iconos en los enlaces */
+    padding: 12px 0; /* Ajusta el padding para los iconos centrados */
+    margin: 0 5px; /* Reduce el margen lateral */
+}
+.sidebar.collapsed .sidebar-nav .nav-link i {
+    margin-right: 0; /* Elimina el margen del icono */
+}
+.sidebar.collapsed .sidebar-nav .nav-link span { /* OCULTA EL TEXTO DE LOS ENLACES */
+    display: none;
+}
+
+
+/* --- Contenido Principal de la Aplicación --- */
+.main-content-wrapper {
+    flex-grow: 1; /* Ocupa todo el espacio restante */
+    display: flex;
+    flex-direction: column;
+    
+    margin-left: 250px; /* Desplaza el contenido principal a la derecha, igual al ancho del sidebar */
+    padding-top: 70px; /* Altura aproximada del header. Ajusta si tu header es más alto */
+    transition: margin-left 0.3s ease; /* Transición suave para el margen */
+}
+
+/* Estado cuando el main content se ajusta a un sidebar colapsado */
+.app-wrapper.sidebar-collapsed .main-content-wrapper {
+    margin-left: 60px; /* Mueve el contenido para un sidebar de 60px */
+}
+
+.main-header {
+    background-color: #ffffff;
+    padding: 15px 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    
+    position: fixed; /* Hace que el header esté fijo */
+    top: 0;          /* Lo fija en la parte superior */
+    left: 250px;     /* Empieza donde termina el sidebar fijo */
+    right: 0;        /* Se extiende hasta el borde derecho */
+    width: auto;     /* El ancho se calculará automáticamente entre left y right */
+    z-index: 50;     /* Asegura que esté por encima del contenido principal */
+    transition: left 0.3s ease, width 0.3s ease; /* Transición suave para el header fijo */
+}
+
+/* Ajuste del main-header cuando el sidebar está colapsado */
+.app-wrapper.sidebar-collapsed .main-header {
+    left: 60px; /* El header fijo comienza después del sidebar colapsado */
+    width: calc(100% - 60px); /* Su ancho se ajusta */
+}
+
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Espacio entre elementos del header */
+}
+/* Estilo para el botón de menú móvil en el header */
+.mobile-menu-toggle {
+    background-color: transparent;
+    border: none;
+    font-size: 1.8em;
+    color: #555;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    display: none; /* OCULTO EN ESCRITORIO */
+    margin-right: 15px; /* Espacio a la derecha de la barra de búsqueda */
+}
+.mobile-menu-toggle:hover {
+    color: #007bff;
+}
+
+
+.search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #f0f2f5;
+    border-radius: 8px;
+    padding: 8px 15px;
+}
+.search-bar i {
+    color: #888;
+    margin-right: 10px;
+}
+.search-bar input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 1em;
+    padding: 0;
+    color: #333;
+    width: 200px; /* Ancho del campo de búsqueda */
+}
+.search-bar input::placeholder {
+    color: #aaa;
+}
+
+.header-right i {
+    font-size: 1.3em;
+    color: #555;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.header-right i:hover {
+    color: #007bff;
+}
+.user-name {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.app-main-container {
+    flex-grow: 1;
+    padding: 30px; /* Padding interno para el contenido principal */
+    overflow-y: auto; /* Permite scroll si el contenido es largo */
+}
+
+/* --- Estilos para las Secciones de Contenido (Home, Inventario, etc.) --- */
+.app-section {
+    display: none; /* Todas las secciones ocultas por defecto */
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* Sombra más pronunciada para secciones */
+    margin-bottom: 25px; /* Espacio entre secciones si se mostraran juntas */
+}
+
+.app-section.active {
+    display: block; /* La sección activa se muestra */
+}
+
+h2 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2em;
+    font-weight: 600;
+}
+h3, h4 {
+    color: #34495e;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 8px;
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+/* --- Estilos para Botones Generales --- */
+/* Estandarización de colores y tamaños para tipos de botones */
+/* Botones de acción primaria (ej. Añadir, Registrar Venta, Guardar) */
+.btn-primary,
+#btn-registrar-venta, /* Botón específico de POS */
+.recepcion-controles button[type="submit"] { /* Botón de Registrar Recepción y Cliente */
+    background-color: #007bff; /* Azul vibrante */
+    color: white;
+    padding: 12px 25px; /* TAMAÑO MÁS GRANDE PARA BOTONES PRIMARIOS */
+    font-size: 1.1em; /* Fuente ligeramente más grande */
+    border-radius: 8px; /* Bordes más redondeados */
+}
+.btn-primary:hover,
+#btn-registrar-venta:hover,
+.recepcion-controles button[type="submit"]:hover {
+    background-color: #0056b3; /* Azul más oscuro al hover */
+    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+}
+
+/* Botones de acción secundaria (ej. Cancelar, Limpiar, Generar) */
+.btn-secondary,
+#btn-limpiar-carrito, /* Botón específico de POS */
+.reporte-controles button { /* Botón de Generar Reporte */
+    background-color: #6c757d; /* Gris neutral */
+    color: white;
+    padding: 8px 18px; /* TAMAÑO MÁS PEQUEÑO PARA BOTONES SECUNDARIOS */
+    font-size: 0.95em; /* Fuente ligeramente más pequeña */
+    border-radius: 5px; /* Bordes normales */
+}
+.btn-secondary:hover,
+#btn-limpiar-carrito:hover,
+.reporte-controles button:hover {
+    background-color: #5a6268; /* Gris más oscuro al hover */
+    box-shadow: 0 4px 10px rgba(108,117,125,0.3);
+}
+
+/* Botones de tablas: Editar (Amarillo) */
+.btn-table-action.edit {
+    background-color: #ffc107; /* Amarillo */
+    color: #333;
+}
+.btn-table-action.edit:hover {
+    background-color: #e0a800;
+}
+
+/* Botones de tablas y POS: Eliminar/Quitar (Rojo) */
+.btn-table-action.delete,
+.btn-quitar-carrito { /* Botón de quitar en el carrito de POS */
+    background-color: #dc3545; /* Rojo */
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    margin-right: 5px;
+}
+.btn-table-action.delete:hover,
+.btn-quitar-carrito:hover {
+    background-color: #c82333;
+}
+
+/* Estilos comunes para todos los botones */
+.btn-primary, .btn-secondary,
+.btn-table-action,
+#btn-registrar-venta, #btn-limpiar-carrito, #btn-generar-reporte,
+.recepcion-controles button {
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+/* --- Estilos para Formularios (GENERALES Y DE INVENTARIO) --- */
+/* Form-container ahora es un estilo general para la tarjeta del formulario de añadir producto */
+.form-container { /* Usado para Añadir Producto y Añadir Cliente */
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+    display: none !important; /* Oculto por defecto, se mostrará con JS */
+}
+.form-container.active {
+    display: block !important; /* Forzar que se muestre con la clase active */
+}
+.form-container form { /* Estilo general para formularios dentro de form-container (ej. Añadir Producto) */
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+}
+.form-container form label {
+    font-weight: 600;
+    color: #444;
+    text-align: right; /* Alinea etiquetas a la derecha */
+    padding-right: 15px; /* Espacio entre label e input */
+    align-self: center; /* Centrar verticalmente */
+}
+/* Inputs, selects, textareas generales */
+.form-container form input[type="text"],
+.form-container form input[type="number"],
+.form-container form input[type="date"],
+.form-container form input[type="tel"],
+.form-container form textarea,
+.pos-opciones-pago select, /* select en POS */
+.recepcion-controles input[type="text"], /* inputs en Recepción/Cliente */
+.recepcion-controles input[type="number"],
+.recepcion-controles textarea, /* textarea en Recepción/Cliente */
+#form-editar-producto input[type="text"], /* Inputs en modales de edición */
+#form-editar-producto input[type="number"],
+#form-editar-producto input[type="date"],
+#form-editar-cliente input[type="text"],
+#form-editar-cliente input[type="tel"],
+#form-editar-cliente textarea {
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fcfdff;
+}
+.form-container form input:focus,
+.pos-opciones-pago select:focus,
+.recepcion-controles input:focus,
+.recepcion-controles textarea:focus,
+#form-editar-producto input:focus,
+#form-editar-producto textarea:focus,
+#form-editar-cliente input:focus,
+#form-editar-cliente textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    outline: none;
+}
+.form-container form input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-top: 5px;
+    justify-self: start;
+    align-self: center;
+}
+.form-container form button { /* Botones dentro de form-container */
+    grid-column: 1 / 3;
+    margin-top: 15px;
+}
+/* Reajuste para los botones dentro de los formularios (añadir/cancelar producto/cliente) */
+/* Los botones están en .btn-primary y .btn-secondary */
+.form-container form button[type="submit"] {
+    grid-column: span 1; /* Ocupa solo 1 columna */
+    width: auto;
+    justify-self: start; /* El principal a la izquierda */
+    margin-left: 0;
+    margin-right: 10px; /* Espacio entre el primario y el secundario */
+}
+.form-container form button.btn-secondary {
+    grid-column: span 1; /* Ocupa solo 1 columna */
+    width: auto;
+    justify-self: end; /* El secundario a la derecha */
+    margin-right: 0;
+    margin-left: 10px; /* Espacio entre el secundario y el primario si el primario está a la izquierda */
+}
+
+
+/* --- Estilos ESPECÍFICOS para formularios dentro de .recepcion-controles (CLIENTES y RECEPCIÓN) --- */
+/* Título dentro de los contenedores de tipo 'recepcion-controles' */
+.recepcion-controles .form-title {
+    text-align: left;
+    margin-top: 0;
+    margin-bottom: 25px;
+    border-bottom: none;
+    grid-column: 1 / 3; /* Para que el título ocupe ambas columnas del grid del contenedor */
+}
+
+/* Contenedor de tipo 'recepcion-controles' (usado para Recepción de Mercancía y Añadir Cliente) */
+.recepcion-controles { 
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.recepcion-controles label {
+    font-weight: 600;
+    color: #444;
+    text-align: right;
+    padding-right: 15px;
+    align-self: center;
+}
+/* Asegura que los botones dentro de .recepcion-controles ocupen 2 columnas */
+.recepcion-controles button {
+    grid-column: 1 / 3;
+    justify-self: center;
+    width: auto;
+    max-width: 250px;
+    margin-top: 15px;
+}
+
+
+/* Reglas específicas para #form-agregar-cliente (DENTRO DE .recepcion-controles) */
+#form-agregar-cliente {
+    display: grid;
+    grid-template-columns: auto 1fr; /* Etiqueta a la izquierda, input a la derecha */
+    gap: 15px 25px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    margin-bottom: 0;
+    grid-column: 1 / 3; /* Asegura que el formulario interno ocupe las dos columnas del padre */
+}
+#form-agregar-cliente label {
+    text-align: left; /* Alinear etiqueta a la izquierda */
+    padding-right: 0;
+}
+#form-agregar-cliente textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+#form-agregar-cliente button[type="submit"] {
+    grid-column: span 1; /* Ocupa una sola columna */
+    justify-self: start; /* Alineado a la izquierda de su columna */
+    margin-right: 10px;
+    width: auto;
+}
+#form-agregar-cliente button.btn-secondary {
+    grid-column: span 1; /* Ocupa una sola columna */
+    justify-self: end; /* Alineado a la derecha de su columna */
+    margin-left: 10px;
+    width: auto;
+}
+
+
+/* Duplicar y ajustar para el formulario de EDICIÓN de CLIENTE (dentro del modal) */
+#form-editar-cliente {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Misma proporción de columnas */
+    gap: 15px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    margin-bottom: 0;
+}
+
+#form-editar-cliente label {
+    font-weight: 600;
+    color: #495057;
+    text-align: right;
+    padding-right: 15px;
+    align-self: center;
+}
+#form-editar-cliente textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+#form-editar-cliente button[type="submit"] {
+    grid-column: 1 / 3;
+    padding: 12px 20px;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+    justify-self: center;
+    width: auto;
+    max-width: 250px;
+}
+
+
+/* Estilos para Tablas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+table thead tr {
+    background-color: #f2f2f2;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+table th, table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+table tbody tr:last-child td {
+    border-bottom: none;
+}
+table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+table tbody tr.low-stock {
+    background-color: #ffe0b2;
+}
+table tbody tr.expiring-soon {
+    background-color: #ffcdd2;
+}
+table tbody tr.expired {
+    background-color: #ef9a9a;
+}
+.btn-table-action {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    margin-right: 5px;
+}
+.btn-table-action.edit {
+    background-color: #ffc107;
+    color: #333;
+}
+.btn-table-action.edit:hover {
+    background-color: #e0a800;
+}
+.btn-table-action.delete {
+    background-color: #dc3545;
+    color: white;
+}
+.btn-table-action.delete:hover {
+    background-color: #c82333;
+}
+
+/* Estilos para controles de tabla */
+.table-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+.section-heading-with-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.section-heading-with-controls h3 {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+    font-size: 1.5em;
+}
+.search-bar-table {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #f0f2f5;
+    border-radius: 8px;
+    padding: 8px 15px;
+    width: 300px;
+}
+.search-bar-table i {
+    color: #888;
+    margin-right: 10px;
+}
+.search-bar-table input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 1em;
+    padding: 0;
+    color: #333;
+    width: calc(100% - 30px);
+}
+.search-bar-table input::placeholder {
+    color: #aaa;
+}
+
+/* --- Estilos para el POS (Punto de Venta) --- */
+.pos-search-and-client {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.pos-search {
+    position: relative;
+    margin-bottom: 0;
+}
+.pos-search input[type="text"] {
+    padding: 12px;
+    font-size: 1.1em;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    width: calc(100% - 24px);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+.sugerencias-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #fff;
+    position: absolute;
+    width: calc(100% - 2px);
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.sugerencias-lista li {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+.sugerencias-lista li:last-child {
+    border-bottom: none;
+}
+.sugerencias-lista li:hover {
+    background-color: #f5f5f5;
+}
+
+#tabla-carrito th, #tabla-carrito td {
+    text-align: center;
+    vertical-align: middle;
+}
+#tabla-carrito td:nth-child(1) {
+    text-align: left;
+}
+.cantidad-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+.cantidad-control button {
+    background-color: #e9ecef;
+    color: #495057;
+    border: 1px solid #ced4da;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    line-height: 1;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.cantidad-control button:hover {
+    background-color: #dee2e6;
+    border-color: #adb5bd;
+}
+.cantidad-display {
+    padding: 0 8px;
+    min-width: 30px;
+    text-align: center;
+    font-weight: bold;
+    color: #2c3e50;
+}
+.pos-accion-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+}
+
+.pos-resumen {
+    text-align: right;
+    font-size: 1.2em;
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+#total-venta {
+    font-size: 1.8em;
+    color: #28a745;
+    font-weight: bold;
+}
+#btn-registrar-venta {
+    padding: 18px 30px;
+}
+#btn-registrar-venta:hover {
+    /* box-shadow: 0 6px 20px rgba(0,123,255,0.5); */
+}
+.pos-opciones-pago {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 20px;
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
+    align-items: center;
+}
+.pos-opciones-pago label {
+    font-weight: 600;
+}
+#div-efectivo-cambio {
+    grid-column: 1 / 3;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    border: 1px solid #d1ecf1;
+    border-radius: 8px;
+    background-color: #e0f7fa;
+    margin-top: 15px;
+}
+#div-efectivo-cambio label {
+    margin-right: 5px;
+    margin-bottom: 0;
+    color: #0056b3;
+}
+#div-efectivo-cambio input {
+    flex-grow: 1;
+    max-width: 180px;
+    background-color: #ffffff;
+    border: 1px solid #a7d9f1;
+    border-radius: 8px;
+    padding: 12px;
+}
+#div-efectivo-cambio p {
+    flex-basis: 100%;
+    text-align: right;
+    font-size: 1.2em;
+    margin: 0;
+    color: #2c3e50;
+}
+#monto-cambio {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+#monto-cambio[style*="rgb(220, 53, 69)"] {
+    color: #dc3545 !important;
+}
+#monto-cambio[style*="rgb(40, 167, 69)"] {
+    color: #28a745 !important;
+}
+.pos-cliente-selector {
+    position: relative;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+.pos-cliente-selector input[type="text"] {
+    padding: 12px;
+    font-size: 1.1em;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    width: calc(100% - 24px);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+.cliente-info-pos {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.95em;
+    color: #555;
+    font-weight: 600;
+}
+#btn-quitar-cliente {
+    /* ... */
+}
+#sugerencias-clientes-pos {
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+    top: calc(100% + 5px);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* --- Estilos para Reportes --- */
+.reporte-controles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+    align-items: center;
+    justify-content: center;
+}
+.reporte-controles label {
+    font-weight: 600;
+    color: #444;
+}
+.reporte-controles input[type="date"],
+.reporte-controles button {
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.resumen-reporte {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+#total-ventas-reporte {
+    font-size: 1.6em;
+    color: #28a745;
+    font-weight: bold;
+    display: block;
+    text-align: right;
+    margin-bottom: 20px;
+}
+#tabla-ventas-reporte th, #tabla-ventas-reporte td,
+#tabla-productos-mas-vendidos th, #tabla-productos-mas-vendidos td {
+    text-align: left;
+}
+
+/* --- Estilos para Recepción de Mercancía --- */
+.recepcion-controles { 
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.recepcion-controles label {
+    font-weight: 600;
+    color: #444;
+    text-align: right;
+    padding-right: 15px;
+    align-self: center;
+}
+.recepcion-controles button {
+    grid-column: 1 / 3;
+    justify-self: center;
+    width: auto;
+    max-width: 250px;
+    margin-top: 15px;
+}
+#sugerencias-recepcion {
+    grid-column: 1 / 3;
+    position: absolute;
+    top: 115px;
+    left: 20px;
+    right: 20px;
+    width: auto;
+    background-color: #fff;
+    z-index: 11;
+    /*border: 1px solid #e0e0e0;*/
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    max-height: 200px;
+    overflow-y: auto;
+}
+/* Reutilizamos estilos de sugerencias-lista */
+.sugerencias-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.sugerencias-lista li {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+.sugerencias-lista li:last-child {
+    border-bottom: none;
+}
+.sugerencias-lista li:hover {
+    background-color: #f5f5f5;
+}
+#tabla-recepciones th, #tabla-recepciones td {
+    text-align: left;
+}
+/* --- Estilos para Modales (Ventanas Emergentes) --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    padding-top: 60px;
+}
+.modal-content {
+    background-color: #ffffff;
+    margin: 5% auto;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 550px;
+    position: relative;
+}
+.close-button {
+    color: #888;
+    float: right;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    padding: 5px;
+}
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+}
+
+/* Formularios dentro de modales (edición de producto/cliente) */
+#form-editar-producto, #form-editar-cliente {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+}
+#form-editar-producto label, #form-editar-cliente label {
+    font-weight: 600;
+    color: #495057;
+    text-align: right;
+    padding-right: 15px;
+    align-self: center;
+}
+#form-editar-producto textarea, #form-editar-cliente textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+#form-editar-producto button[type="submit"], #form-editar-cliente button[type="submit"] {
+    grid-column: 1 / 3;
+    padding: 12px 20px;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+    justify-self: center;
+    width: auto;
+    max-width: 250px;
+}
+
+/* Estilos para el Modal de Factura (pantalla) */
+.modal-content-factura {
+    background-color: #ffffff;
+    margin: 3% auto;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 650px;
+    position: relative;
+}
+
+.factura-header, .factura-footer {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.factura-header p, .factura-footer p {
+    margin: 3px 0;
+    font-size: 0.95em;
+    color: #555;
+}
+.factura-header p strong {
+    font-size: 1.2em;
+    color: #2c3e50;
+}
+
+.factura-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    border: 1px solid #e0e0e0;
+}
+.factura-tabla th, .factura-tabla td {
+    border: 1px solid #f0f0f0;
+    padding: 10px;
+    text-align: left;
+}
+.factura-tabla th {
+    background-color: #f8f8f8;
+    font-weight: bold;
+}
+.factura-tabla td:nth-child(1),
+.factura-tabla td:nth-child(3),
+.factura-tabla td:nth-child(4) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.factura-totales {
+    text-align: right;
+    font-size: 1.1em;
+    margin-top: 25px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 15px;
+}
+.factura-totales p {
+    margin: 7px 0;
+    color: #444;
+}
+.factura-totales strong {
+    font-size: 1.4em;
+    color: #007bff;
+}
+#btn-imprimir-factura {
+    /* ... */
+}
+#btn-imprimir-factura:hover {
+    /* ... */
+}
+/* --- Estilos para IMPRESIÓN (Especialmente para impresoras de recibos) --- */
+@media print {
+    body {
+        visibility: hidden;
+        margin: 0;
+        padding: 0;
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 11px;
+        line-height: 1.2;
+        color: black !important;
+        background-color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    #modal-factura {
+        visibility: visible;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        background-color: white !important;
+        box-shadow: none !important;
+        display: block !important;
+        z-index: 9999 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .modal-content-factura {
+        width: 280px;
+        margin: 0 auto !important;
+        padding: 10px !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        background-color: white !important;
+    }
+    .close-button, #btn-imprimir-factura {
+        display: none !important;
+    }
+    .factura-tabla {
+        width: 100%;
+        margin-bottom: 5px;
+        font-size: 10px;
+        border: none;
+    }
+    .factura-tabla th, .factura-tabla td {
+        padding: 2px 0px;
+        border: none;
+        text-align: left;
+        vertical-align: top;
+    }
+    .factura-tabla th {
+        border-bottom: 1px dashed #000 !important;
+        font-weight: bold;
+        background-color: transparent !important;
+    }
+    .factura-tabla td:nth-child(1) {
+        width: 15%;
+        text-align: left;
+    }
+    .factura-tabla td:nth-child(2) {
+        width: 55%;
+        word-wrap: break-word;
+        white-space: normal;
+    }
+    .factura-tabla td:nth-child(3),
+    .factura-tabla td:nth-child(4) {
+        width: 15%;
+        text-align: right;
+        white-space: nowrap;
+    }
+    .factura-header, .factura-footer, .factura-totales {
+        font-size: 11px;
+        margin-bottom: 5px;
+        padding-bottom: 5px;
+        padding-top: 0;
+        border-bottom: none;
+        border-top: none;
+    }
+    .factura-header p, .factura-footer p, .factura-totales p {
+        margin: 2px 0;
+    }
+    .factura-totales {
+        border-top: 1px dashed #000 !important;
+        padding-top: 5px;
+    }
+    .factura-totales strong {
+        font-size: 1.2em;
+    }
+    #factura-monto-recibido-line, #factura-cambio-line {
+        display: block !important;
+    }
+}
+/* --- Media Queries para Responsive Design --- */
+@media (max-width: 768px) {
+    .app-wrapper {
+        flex-direction: column;
+    }
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        width: 250px;
+        height: 100vh;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+        transition: left 0.3s ease;
+        z-index: 100;
+        background-color: #ffffff;
+    }
+    .sidebar.active-mobile {
+        left: 0;
+    }
+    .sidebar.collapsed { 
+        width: 250px;
+    }
+    .sidebar.collapsed .app-name,
+    .sidebar.collapsed .sidebar-footer {
+        display: block;
+    }
+    .sidebar.collapsed .sidebar-nav .nav-link {
+        justify-content: flex-start;
+        padding: 12px 20px;
+        margin: 0 10px;
+    }
+    .sidebar.collapsed .sidebar-nav .nav-link i {
+        margin-right: 10px;
+    }
+    .sidebar-header {
+        justify-content: center;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+    .sidebar .toggle-sidebar-btn {
+        display: none;
+    }
+    .sidebar-nav {
+        position: static;
+        width: 100%;
+        box-shadow: none;
+        border-radius: 0;
+        margin-top: 0;
+        padding-top: 0;
+    }
+    .sidebar-nav.active {
+        display: block;
+    }
+    .sidebar-nav li {
+        margin-bottom: 0;
+    }
+    .sidebar-nav .nav-link {
+        margin: 0;
+        border-radius: 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .sidebar-nav li:last-child .nav-link {
+        border-bottom: none;
+    }
+    .sidebar-footer {
+        display: none;
+    }
+    
+    .mobile-menu-toggle {
+        display: block;
+        font-size: 1.8em;
+        color: #555;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        margin-right: 15px;
+    }
+    .main-header {
+        position: static;
+        width: 100%;
+        left: auto;
+        right: auto;
+        padding: 15px 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .main-content-wrapper {
+        margin-left: 0;
+        padding-top: 0;
+    }
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .header-left, .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .search-bar {
+        width: auto;
+        flex-grow: 1;
+    }
+    .search-bar input {
+        width: calc(100% - 30px);
+    }
+    .app-main-container {
+        padding: 20px;
+    }
+    .form-container form, .pos-opciones-pago {
+        grid-template-columns: 1fr;
+    }
+    .form-container form button, .pos-opciones-pago button {
+        grid-column: 1 / 2;
+    }
+    .form-container form label, .form-container form input:not([type="checkbox"]),
+    .pos-opciones-pago label, .pos-opciones-pago input, .pos-opciones-pago select {
+        grid-column: auto;
+    }
+    .form-container form button[type="submit"], .form-container form button.btn-secondary {
+        justify-self: stretch;
+    }
+    .reporte-controles {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .reporte-controles input, .reporte-controles button {
+        width: 100%;
+    }
+    .pos-search-and-client {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .pos-opciones-pago {
+        grid-template-columns: 1fr;
+    }
+    #div-efectivo-cambio {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    #div-efectivo-cambio input {
+        max-width: 100%;
+    }
+    #div-efectivo-cambio p {
+        text-align: left;
+    }
+    .pos-cliente-selector {
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+    }
+    #sugerencias-recepcion {
+        position: static;
+        width: 100%;
+        left: auto;
+        right: auto;
+        top: auto;
+    }
+}
+/* --- ESTILOS PARA LA PÁGINA DE INICIO (DASHBOARD) --- */
+
+.dashboard-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* 4 columnas en escritorio, se ajustan */
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.dashboard-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.dashboard-card.primary-total { background-color: #007bff; } /* Azul */
+.dashboard-card.secondary-total { background-color: #28a745; } /* Verde */
+.dashboard-card.info-card { background-color: #17a2b8; } /* Azul cian */
+.dashboard-card.warning-card { background-color: #ffc107; } /* Amarillo */
+.dashboard-card.danger-card { background-color: #dc3545; } /* Rojo (por si necesitas otro) */
+
+
+.card-content h4 {
+    margin: 0 0 5px 0;
+    color: white;
+    font-size: 1em;
+    font-weight: normal;
+    text-transform: uppercase;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.card-value {
+    margin: 0;
+    font-size: 2em;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.card-icon {
+    font-size: 2.5em;
+    opacity: 0.8;
+}
+
+/* Sección de paneles secundarios (gráficos y listas) */
+.dashboard-secondary-panels {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Una columna más ancha para el gráfico y una más angosta para la lista */
+    gap: 20px;
+}
+.dashboard-panel {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+.dashboard-panel h3 {
+    margin-top: 0;
+}
+
+/* Estilos para la lista de bajo stock */
+.low-stock-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.low-stock-item {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+    transition: background-color 0.2s ease;
+}
+.low-stock-item:hover {
+    background-color: #f7f9fc;
+}
+.low-stock-item:last-child {
+    border-bottom: none;
+}
+
+
+/* --- Nuevos iconos para el dashboard --- */
+.icon-dollar::before { content: "$"; }
+.icon-profit::before { content: "📈"; }
+.icon-users::before { content: "🧑‍🤝‍🧑"; }
+.icon-warning::before { content: "⚠️"; }
