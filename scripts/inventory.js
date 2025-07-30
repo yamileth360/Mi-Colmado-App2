@@ -29,7 +29,7 @@ const editFechaVencimientoInput = document.getElementById('edit-fecha-vencimient
 
 // ** Lógica para mostrar/ocultar el campo de fecha de vencimiento al agregar producto **
 fechaVencimientoCheck.addEventListener('change', () => {
-    console.debug(`Checkbox 'Requiere Fecha Vencimiento' cambiado a: ${fechaVencimientoCheck.checked}`);
+    console.debug(`DEBUG: Checkbox 'Requiere Fecha Vencimiento' cambiado a: ${fechaVencimientoCheck.checked}`);
     if (fechaVencimientoCheck.checked) {
         fechaVencimientoDiv.style.display = 'block';
         fechaVencimientoInput.setAttribute('required', 'true');
@@ -43,7 +43,7 @@ fechaVencimientoCheck.addEventListener('change', () => {
 // ** Función para agregar un producto a Firestore **
 formAgregarProducto.addEventListener('submit', async (e) => {
     e.preventDefault(); // Evita que la página se recargue
-    console.group("Intentando agregar nuevo producto...");
+    console.group("DEBUG: Intentando agregar nuevo producto...");
 
     const nombre = nombreProductoInput.value;
     const precioCompra = parseFloat(precioCompraInput.value);
@@ -55,13 +55,13 @@ formAgregarProducto.addEventListener('submit', async (e) => {
 
     if (!nombre || isNaN(precioCompra) || isNaN(precioVenta) || isNaN(cantidad) || isNaN(stockMinimo)) {
         alert("Por favor, rellena todos los campos numéricos y de texto correctamente.");
-        console.warn("Validación de agregar producto fallida: campos incompletos o inválidos.");
+        console.warn("DEBUG: Validación de agregar producto fallida: campos incompletos o inválidos.");
         console.groupEnd();
         return;
     }
     if (requiereFechaVencimiento && !fechaVencimiento) {
          alert("Por favor, ingresa la fecha de vencimiento.");
-         console.warn("Validación de agregar producto fallida: fecha de vencimiento requerida no ingresada.");
+         console.warn("DEBUG: Validación de agregar producto fallida: fecha de vencimiento requerida no ingresada.");
          console.groupEnd();
          return;
     }
@@ -69,6 +69,7 @@ formAgregarProducto.addEventListener('submit', async (e) => {
     try {
         const docRef = await db.collection('productos').add({
             nombre,
+            nombreLower: nombre.toLowerCase(), // Añadido: Campo para búsqueda insensible a mayúsculas/minúsculas
             precioCompra,
             precioVenta,
             cantidad,
@@ -77,13 +78,13 @@ formAgregarProducto.addEventListener('submit', async (e) => {
             fechaVencimiento, // Será null si no aplica
             fechaCreacion: firebase.firestore.FieldValue.serverTimestamp() // Para saber cuándo se añadió
         });
-        console.log(`Producto '${nombre}' agregado con éxito. ID: ${docRef.id}`);
+        console.log(`DEBUG: Producto '${nombre}' agregado con éxito. ID: ${docRef.id}`);
         alert('Producto agregado con éxito!');
         formAgregarProducto.reset(); // Limpiar el formulario
         fechaVencimientoDiv.style.display = 'none'; // Ocultar de nuevo
         fechaVencimientoInput.removeAttribute('required'); // Quitar required
     } catch (error) {
-        console.error("Error crítico al agregar el producto:", error);
+        console.error("DEBUG: Error crítico al agregar el producto:", error);
         alert("Hubo un error al agregar el producto. Consulta la consola para más detalles.");
     }
     console.groupEnd();
@@ -91,10 +92,10 @@ formAgregarProducto.addEventListener('submit', async (e) => {
 
 // ** Función para mostrar los productos en la tabla **
 const mostrarProductos = (productos) => {
-    console.group("Actualizando tabla de productos...");
+    console.group("DEBUG: Actualizando tabla de productos...");
     tablaProductosBody.innerHTML = ''; // Limpiar la tabla antes de añadir nuevos datos
     if (productos.length === 0) {
-        console.info("No hay productos en inventario para mostrar.");
+        console.info("DEBUG: No hay productos en inventario para mostrar.");
         tablaProductosBody.innerHTML = '<tr><td colspan="5">No hay productos en inventario.</td></tr>';
         console.groupEnd();
         return;
@@ -131,14 +132,14 @@ const mostrarProductos = (productos) => {
         btnEliminar.textContent = 'Eliminar';
         btnEliminar.classList.add('btn-table-action', 'delete'); // Clases para estilos
         btnEliminar.addEventListener('click', async () => {
-            console.warn(`Confirmación de eliminación para producto: ${producto.nombre} (ID: ${producto.id})`);
+            console.warn(`DEBUG: Confirmación de eliminación para producto: ${producto.nombre} (ID: ${producto.id})`);
             if (confirm(`¿Estás seguro de que quieres eliminar ${producto.nombre}?`)) {
                 try {
                     await db.collection('productos').doc(producto.id).delete();
-                    console.log(`Producto '${producto.nombre}' eliminado con éxito.`);
+                    console.log(`DEBUG: Producto '${producto.nombre}' eliminado con éxito.`);
                     alert('Producto eliminado.');
                 } catch (error) {
-                    console.error(`Error al eliminar el producto '${producto.nombre}':`, error);
+                    console.error(`DEBUG: Error al eliminar el producto '${producto.nombre}':`, error);
                     alert("Hubo un error al eliminar el producto. Consulta la consola.");
                 }
             }
@@ -148,7 +149,7 @@ const mostrarProductos = (productos) => {
         // Resaltar productos con bajo stock
         if (producto.cantidad <= producto.stockMinimo) {
             fila.classList.add('low-stock'); // Añadir clase para CSS
-            console.warn(`Advertencia de bajo stock para: ${producto.nombre} (Stock: ${producto.cantidad})`);
+            console.warn(`DEBUG: Advertencia de bajo stock para: ${producto.nombre} (Stock: ${producto.cantidad})`);
         }
         // Resaltar productos próximos a vencer (ej: en los próximos 30 días)
         if (producto.requiereFechaVencimiento && producto.fechaVencimiento) {
@@ -157,10 +158,10 @@ const mostrarProductos = (productos) => {
             const diasParaVencer = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
             if (diasParaVencer <= 30 && diasParaVencer > 0) {
                 fila.classList.add('expiring-soon'); // Añadir clase para CSS
-                console.warn(`Producto '${producto.nombre}' próximo a vencer en ${diasParaVencer} días.`);
+                console.warn(`DEBUG: Producto '${producto.nombre}' próximo a vencer en ${diasParaVencer} días.`);
             } else if (diasParaVencer <= 0) {
                 fila.classList.add('expired'); // Añadir clase para CSS
-                console.error(`Producto '${producto.nombre}' VENCIDO.`);
+                console.error(`DEBUG: Producto '${producto.nombre}' VENCIDO.`);
             }
         }
     });
@@ -170,14 +171,14 @@ const mostrarProductos = (productos) => {
 // ** Escuchar cambios en la colección 'productos' de Firestore **
 // Esto asegura que la tabla se actualice en tiempo real cada vez que un producto se agrega, edita o elimina
 db.collection('productos').orderBy('nombre').onSnapshot((snapshot) => {
-    console.info("Cambio detectado en la colección 'productos'.");
+    console.info("DEBUG: Cambio detectado en la colección 'productos'.");
     const productos = [];
     snapshot.forEach(doc => {
         productos.push({ id: doc.id, ...doc.data() });
     });
     mostrarProductos(productos);
 }, (error) => {
-    console.error("Error al escuchar cambios en 'productos':", error);
+    console.error("DEBUG: Error al escuchar cambios en 'productos':", error);
     alert("Error al cargar los productos. Consulta la consola.");
 });
 
@@ -186,7 +187,7 @@ db.collection('productos').orderBy('nombre').onSnapshot((snapshot) => {
 
 // ** Abrir modal de edición de producto **
 const abrirModalEditarProducto = (productoId, productoData) => {
-    console.log(`Abriendo modal de edición para producto ID: ${productoId}`, productoData);
+    console.log(`DEBUG: Abriendo modal de edición para producto ID: ${productoId}`, productoData);
     editProductoIdInput.value = productoId;
     editNombreProductoInput.value = productoData.nombre;
     editPrecioCompraInput.value = productoData.precioCompra;
@@ -210,13 +211,13 @@ const abrirModalEditarProducto = (productoId, productoData) => {
 
 // ** Cerrar modal de edición de producto **
 closeModalProductoBtn.addEventListener('click', () => {
-    console.log("Cerrando modal de edición de producto.");
+    console.log("DEBUG: Cerrando modal de edición de producto.");
     modalEditarProducto.style.display = 'none';
 });
 
 // Lógica para mostrar/ocultar el campo de fecha de vencimiento en el modal de edición
 editFechaVencimientoCheck.addEventListener('change', () => {
-    console.debug(`Checkbox 'Requiere Fecha Vencimiento' en edición cambiado a: ${editFechaVencimientoCheck.checked}`);
+    console.debug(`DEBUG: Checkbox 'Requiere Fecha Vencimiento' en edición cambiado a: ${editFechaVencimientoCheck.checked}`);
     if (editFechaVencimientoCheck.checked) {
         editFechaVencimientoDiv.style.display = 'block';
         editFechaVencimientoInput.setAttribute('required', 'true');
@@ -231,7 +232,7 @@ editFechaVencimientoCheck.addEventListener('change', () => {
 formEditarProducto.addEventListener('submit', async (e) => {
     e.preventDefault();
     const productoId = editProductoIdInput.value;
-    console.group(`Intentando actualizar producto ID: ${productoId}`);
+    console.group(`DEBUG: Intentando actualizar producto ID: ${productoId}`);
 
     const nombre = editNombreProductoInput.value;
     const precioCompra = parseFloat(editPrecioCompraInput.value);
@@ -257,6 +258,7 @@ formEditarProducto.addEventListener('submit', async (e) => {
     try {
         await db.collection('productos').doc(productoId).update({
             nombre,
+            nombreLower: nombre.toLowerCase(), // AÑADIDO: Actualizar el campo para búsqueda insensible a mayúsculas/minúsculas
             precioCompra,
             precioVenta,
             cantidad,
@@ -265,11 +267,11 @@ formEditarProducto.addEventListener('submit', async (e) => {
             fechaVencimiento // Será null si no aplica
         });
 
-        console.log(`Producto ID: ${productoId} actualizado con éxito.`);
+        console.log(`DEBUG: Producto ID: ${productoId} actualizado con éxito.`);
         alert('Producto actualizado con éxito!');
         modalEditarProducto.style.display = 'none';
     } catch (error) {
-        console.error(`Error al actualizar el producto ID: ${productoId}:`, error);
+        console.error(`DEBUG: Error al actualizar el producto ID: ${productoId}:`, error);
         alert("Hubo un error al actualizar el producto. Consulta la consola.");
     }
     console.groupEnd();

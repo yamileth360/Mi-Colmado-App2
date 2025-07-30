@@ -44,48 +44,61 @@ let carrito = []; // Array para almacenar los productos en el carrito
 let clienteSeleccionado = null; // Para almacenar el objeto del cliente
 
 
-// ** Lógica de Búsqueda y Sugerencias de Productos (para POS) **
+// ** Lógica de Búsqueda y Sugerencias de Productos (para POS, usando Firestore) **
 buscarProductoPosInput.addEventListener('input', async () => {
     const textoBusqueda = buscarProductoPosInput.value.toLowerCase();
-    console.debug(`Buscando productos en POS: '${textoBusqueda}'`);
+    console.debug(`DEBUG: Buscando productos en POS: '${textoBusqueda}'`);
     sugerenciasPosUl.innerHTML = ''; // Limpiar sugerencias anteriores
 
     if (textoBusqueda.length > 0) {
         try {
-            const snapshot = await db.collection('productos').orderBy('nombre').get();
+            // *** VERSIÓN ACTUAL: Descarga todos los productos y filtra localmente (menos eficiente, pero funciona sin índice especial) ***
+            const snapshot = await db.collection('productos').orderBy('nombre').get(); // Obtiene TODOS, ordenados por nombre
             const todosLosProductos = [];
             snapshot.forEach(doc => {
                 todosLosProductos.push({ id: doc.id, ...doc.data() });
             });
 
+            // Filtra localmente por nombre (insensible a mayúsculas/minúsculas)
             const productosFiltrados = todosLosProductos.filter(prod => 
                 prod.nombre.toLowerCase().includes(textoBusqueda)
             );
 
-            productosFiltrados.forEach(producto => {
-                const li = document.createElement('li');
-                li.textContent = `${producto.nombre} (RD$ ${producto.precioVenta.toFixed(2)}) - Stock: ${producto.cantidad}`;
-                li.addEventListener('click', () => {
-                    agregarProductoAlCarrito(producto);
-                    buscarProductoPosInput.value = ''; // Limpiar input
-                    sugerenciasPosUl.innerHTML = ''; // Limpiar sugerencias
+            console.log("DEBUG: Productos encontrados por Firestore para POS:", productosFiltrados);
+
+            if (productosFiltrados.length > 0) {
+                productosFiltrados.forEach(producto => {
+                    const li = document.createElement('li');
+                    li.textContent = `${producto.nombre} (RD$ ${producto.precioVenta.toFixed(2)}) - Stock: ${producto.cantidad}`;
+                    li.addEventListener('click', () => {
+                        agregarProductoAlCarrito(producto);
+                        buscarProductoPosInput.value = ''; // Limpiar input
+                        sugerenciasPosUl.innerHTML = ''; // Limpiar sugerencias
+                    });
+                    sugerenciasPosUl.appendChild(li);
                 });
+            } else {
+                console.log("DEBUG: Firestore no encontró productos para el término en POS:", textoBusqueda);
+                const li = document.createElement('li');
+                li.textContent = 'No se encontraron productos.';
                 sugerenciasPosUl.appendChild(li);
-            });
+            }
+
         } catch (error) {
-            console.error("Error buscando productos para POS:", error);
+            console.error("DEBUG: Error buscando productos para POS:", error);
         }
     }
 });
 
 // ** Función para agregar producto al carrito **
 const agregarProductoAlCarrito = (productoSeleccionado) => {
+    console.log(`DEBUG: Agregando producto al carrito: ${productoSeleccionado.nombre}`);
     const productoExistente = carrito.find(item => item.id === productoSeleccionado.id);
 
     if (productoExistente) {
         if (productoExistente.cantidadEnCarrito < productoSeleccionado.cantidad) {
             productoExistente.cantidadEnCarrito++;
-            console.log(`Cantidad de '${productoSeleccionado.nombre}' en carrito incrementada a ${productoExistente.cantidadEnCarrito}.`);
+            console.log(`DEBUG: Cantidad de '${productoSeleccionado.nombre}' en carrito incrementada a ${productoExistente.cantidadEnCarrito}.`);
         } else {
             console.warn(`Stock insuficiente para agregar más de '${productoSeleccionado.nombre}' (Cantidad disponible: ${productoSeleccionado.cantidad}).`);
             alert(`No hay suficiente stock de ${productoSeleccionado.nombre} (Cantidad disponible: ${productoSeleccionado.cantidad}).`);
@@ -94,7 +107,7 @@ const agregarProductoAlCarrito = (productoSeleccionado) => {
     } else {
         if (productoSeleccionado.cantidad > 0) {
             carrito.push({ ...productoSeleccionado, cantidadEnCarrito: 1 });
-            console.log(`Producto '${productoSeleccionado.nombre}' añadido al carrito.`);
+            console.log(`DEBUG: Producto '${productoSeleccionado.nombre}' añadido al carrito por primera vez.`);
         } else {
             console.warn(`Producto '${productoSeleccionado.nombre}' agotado, no se puede añadir al carrito.`);
             alert(`El producto ${productoSeleccionado.nombre} está agotado.`);
@@ -106,7 +119,7 @@ const agregarProductoAlCarrito = (productoSeleccionado) => {
 
 // ** Función para modificar la cantidad de un producto en el carrito (usado por +/- botones) **
 const modificarCantidadCarrito = (productoId, cambio) => {
-    console.log(`Modificando cantidad para producto ID: ${productoId}, cambio: ${cambio}`);
+    console.log(`DEBUG: Modificando cantidad para producto ID: ${productoId}, cambio: ${cambio}`);
     const itemIndex = carrito.findIndex(item => item.id === productoId);
 
     if (itemIndex > -1) {
@@ -116,14 +129,14 @@ const modificarCantidadCarrito = (productoId, cambio) => {
         if (nuevaCantidad > 0) {
             if (nuevaCantidad <= item.cantidad) { // item.cantidad es el stock disponible del producto
                 item.cantidadEnCarrito = nuevaCantidad;
-                console.log(`Cantidad de '${item.nombre}' actualizada a ${item.cantidadEnCarrito}.`);
+                console.log(`DEBUG: Cantidad de '${item.nombre}' actualizada a ${item.cantidadEnCarrito}.`);
             } else {
                 console.warn(`Intento de exceder el stock disponible para '${item.nombre}'.`);
                 alert(`No puedes agregar más de ${item.cantidad} unidades de ${item.nombre} (Stock disponible).`);
             }
         } else {
-            console.log(`Removiendo '${item.nombre}' del carrito (cantidad llegó a 0).`);
-            quitarProductoDelCarrito(productoId);
+            console.log(`DEBUG: Removiendo '${item.nombre}' del carrito (cantidad llegó a 0).`);
+            quitarProductoDelCarrito(item.id);
             return; // Salir para no actualizar UI dos veces
         }
     }
@@ -131,13 +144,14 @@ const modificarCantidadCarrito = (productoId, cambio) => {
 };
 
 
-// ** Función para actualizar la tabla del carrito y el total **
-const actualizarCarritoUI = () => {
-    console.group("Actualizando UI del carrito...");
+// ** Función para actualizar la tabla del carrito y el total (GLOBAL) **
+// Hacemos esta función global para que main.js pueda llamarla
+window.actualizarCarritoUI = () => { 
+    console.group("DEBUG: Entrando a actualizarCarritoUI.");
     tablaCarritoBody.innerHTML = ''; // Limpiar la tabla
 
     if (carrito.length === 0) {
-        console.info("Carrito vacío.");
+        console.info("DEBUG: Carrito vacío.");
         tablaCarritoBody.innerHTML = '<tr><td colspan="5">No hay productos en el carrito.</td></tr>';
         totalVentaSpan.textContent = 'RD$ 0.00';
         // También resetear cambio y monto recibido si el carrito se vacía
@@ -216,26 +230,26 @@ const actualizarCarritoUI = () => {
 // ** Función para quitar producto del carrito **
 const quitarProductoDelCarrito = (productoId) => {
     const itemNombre = carrito.find(item => item.id === productoId)?.nombre || 'producto desconocido';
-    console.log(`Quitando '${itemNombre}' (ID: ${productoId}) del carrito.`);
+    console.log(`DEBUG: Quitanto '${itemNombre}' (ID: ${productoId}) del carrito.`);
     carrito = carrito.filter(item => item.id !== productoId);
     actualizarCarritoUI();
 };
 
 // ** Lógica para el botón 'Limpiar Carrito' **
 btnLimpiarCarrito.addEventListener('click', () => {
-    console.log("Botón 'Limpiar Carrito' clicado.");
+    console.log("DEBUG: Botón 'Limpiar Carrito' clicado.");
     if (carrito.length === 0) {
         alert('El carrito ya está vacío.');
-        console.warn("Intento de limpiar un carrito que ya está vacío.");
+        console.warn("DEBUG: Intento de limpiar un carrito que ya está vacío.");
         return;
     }
     if (confirm('¿Estás seguro de que quieres limpiar todo el carrito? Esta acción no se puede deshacer.')) {
         carrito = []; // Vacía el array del carrito
         actualizarCarritoUI(); // Actualiza la interfaz
-        console.log("Carrito de compras limpiado por el usuario.");
+        console.log("DEBUG: Carrito de compras limpiado por el usuario.");
         alert('El carrito ha sido limpiado.');
     } else {
-        console.log("Operación de limpiar carrito cancelada.");
+        console.log("DEBUG: Operación de limpiar carrito cancelada.");
     }
 });
 
@@ -243,44 +257,56 @@ btnLimpiarCarrito.addEventListener('click', () => {
 // ** Lógica de Búsqueda y Sugerencias de Clientes (para POS) **
 buscarClientePosInput.addEventListener('input', async () => {
     const textoBusqueda = buscarClientePosInput.value.toLowerCase();
-    console.debug(`Buscando clientes en POS: '${textoBusqueda}'`);
+    console.debug(`DEBUG: Buscando clientes en POS: '${textoBusqueda}'`);
     sugerenciasClientesPosUl.innerHTML = ''; // Limpiar sugerencias
 
     if (textoBusqueda.length > 0) {
         try {
-            const snapshot = await db.collection('clientes').orderBy('nombre').get();
+            // *** VERSIÓN ACTUAL: Descarga todos los clientes y filtra localmente (menos eficiente) ***
+            const snapshot = await db.collection('clientes').orderBy('nombre').get(); // Obtiene TODOS los clientes
             const todosLosClientes = [];
             snapshot.forEach(doc => {
                 todosLosClientes.push({ id: doc.id, ...doc.data() });
             });
 
+            // Filtra localmente por nombre o teléfono (insensible a mayúsculas/minúsculas)
             const clientesFiltrados = todosLosClientes.filter(cl => 
                 cl.nombre.toLowerCase().includes(textoBusqueda) || 
                 (cl.telefono && cl.telefono.toLowerCase().includes(textoBusqueda))
             );
 
-            clientesFiltrados.forEach(cliente => {
-                const li = document.createElement('li');
-                li.textContent = `${cliente.nombre} ${cliente.telefono ? `(${cliente.telefono})` : ''}`;
-                li.addEventListener('click', () => {
-                    clienteSeleccionado = cliente;
-                    clienteIdSeleccionadoInput.value = cliente.id;
-                    clienteSeleccionadoPosSpan.textContent = `Cliente: ${cliente.nombre}`;
-                    btnQuitarCliente.style.display = 'inline-block'; // Mostrar botón "Quitar Cliente"
-                    buscarClientePosInput.value = ''; // Limpiar input de búsqueda
-                    sugerenciasClientesPosUl.innerHTML = ''; // Limpiar sugerencias
+            console.log("DEBUG: Clientes encontrados por Firestore para POS:", clientesFiltrados);
+
+            if (clientesFiltrados.length > 0) {
+                clientesFiltrados.forEach(cliente => {
+                    const li = document.createElement('li');
+                    li.textContent = `${cliente.nombre} ${cliente.telefono ? `(${cliente.telefono})` : ''}`;
+                    li.addEventListener('click', () => {
+                        clienteSeleccionado = cliente;
+                        clienteIdSeleccionadoInput.value = cliente.id;
+                        clienteSeleccionadoPosSpan.textContent = `Cliente: ${cliente.nombre}`;
+                        btnQuitarCliente.style.display = 'inline-block'; // Mostrar botón "Quitar Cliente"
+                        buscarClientePosInput.value = ''; // Limpiar input de búsqueda
+                        sugerenciasClientesPosUl.innerHTML = ''; // Limpiar sugerencias
+                    });
+                    sugerenciasClientesPosUl.appendChild(li);
                 });
+            } else {
+                console.log("DEBUG: Firestore no encontró clientes para el término en POS:", textoBusqueda);
+                const li = document.createElement('li');
+                li.textContent = 'No se encontraron clientes.';
                 sugerenciasClientesPosUl.appendChild(li);
-            });
+            }
+
         } catch (error) {
-            console.error("Error buscando clientes para POS:", error);
+            console.error("DEBUG: Error buscando clientes para POS:", error);
         }
     }
 });
 
 // ** Lógica para quitar el cliente seleccionado **
 btnQuitarCliente.addEventListener('click', () => {
-    console.log(`Cliente '${clienteSeleccionado ? clienteSeleccionado.nombre : "ninguno"}' deseleccionado.`);
+    console.log(`DEBUG: Cliente '${clienteSeleccionado ? clienteSeleccionado.nombre : "ninguno"}' deseleccionado.`);
     clienteSeleccionado = null;
     clienteIdSeleccionadoInput.value = '';
     clienteSeleccionadoPosSpan.textContent = '';
@@ -291,7 +317,7 @@ btnQuitarCliente.addEventListener('click', () => {
 
 // ** Lógica para Forma de Pago y Monto Recibido/Cambio **
 formaPagoSelect.addEventListener('change', () => {
-    console.log(`Forma de pago seleccionada: ${formaPagoSelect.value}`);
+    console.log(`DEBUG: Forma de pago seleccionada: ${formaPagoSelect.value}`);
     if (formaPagoSelect.value === 'efectivo') {
         divEfectivoCambio.style.display = 'block';
         montoRecibidoInput.setAttribute('required', 'true');
@@ -311,15 +337,15 @@ montoRecibidoInput.addEventListener('input', () => {
     const cambio = montoRecibido - totalVenta;
     montoCambioSpan.textContent = `RD$ ${cambio.toFixed(2)}`;
     montoCambioSpan.style.color = cambio >= 0 ? '#28a745' : '#dc3545'; // Verde si hay cambio positivo, rojo si falta
-    console.debug(`Monto recibido: ${montoRecibidoInput.value}, Cambio: ${montoCambioSpan.textContent}`);
+    console.debug(`DEBUG: Monto recibido: ${montoRecibidoInput.value}, Cambio: ${montoCambioSpan.textContent}`);
 });
 
 
 // ** Función para registrar la venta en Firestore y actualizar inventario **
 btnRegistrarVenta.addEventListener('click', async () => {
-    console.group("Intentando registrar venta...");
+    console.group("DEBUG: Intentando registrar venta...");
     if (carrito.length === 0) {
-        console.warn("Intento de registrar venta con carrito vacío.");
+        console.warn("DEBUG: Intento de registrar venta con carrito vacío.");
         alert('El carrito está vacío. Agrega productos para registrar una venta.');
         console.groupEnd();
         return;
@@ -333,7 +359,7 @@ btnRegistrarVenta.addEventListener('click', async () => {
     if (formaPago === 'efectivo') {
         montoRecibido = parseFloat(montoRecibidoInput.value);
         if (isNaN(montoRecibido) || montoRecibido < totalVenta) {
-            console.error("Monto recibido insuficiente para pago en efectivo.");
+            console.error("DEBUG: Monto recibido insuficiente para pago en efectivo.");
             alert('El monto recibido es insuficiente para el pago en efectivo.');
             console.groupEnd();
             return;
@@ -362,6 +388,7 @@ btnRegistrarVenta.addEventListener('click', async () => {
                     nombre: item.nombre,
                     cantidad: item.cantidadEnCarrito,
                     precioUnitario: item.precioVenta,
+                    precioCompraUnitario: item.precioCompra, // Guardar el precio de compra
                     subtotal: item.cantidadEnCarrito * item.precioVenta
                 })),
                 totalVenta: totalVenta,

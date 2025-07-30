@@ -68,9 +68,15 @@ const showSection = (sectionId) => {
             console.error("DEBUG: Error: Función 'cargarHistorialRecepciones' no definida en reception.js.");
         }
     }
-    // Para Inventario, Clientes, Reportes: sus listeners de onSnapshot ya
-    // se encargan de la actualización en tiempo real automáticamente,
-    // así que no necesitan una llamada explícita aquí.
+    
+    if (sectionId === 'home') {
+        if (typeof window.loadDashboardData !== 'undefined') {
+            console.info("DEBUG: Cargando datos del dashboard.");
+            window.loadDashboardData(); // Llamada a la función del dashboard
+        } else {
+            console.error("DEBUG: Error: Función 'loadDashboardData' no definida en dashboard.js.");
+        }
+    }
 
     console.groupEnd();
 };
@@ -114,23 +120,19 @@ navMenuLinks.forEach(link => {
 
 // ** Lógica para cerrar modales y sidebar móvil al hacer clic fuera de ellos **
 window.addEventListener('click', (event) => {
-    // Cierra el modal de edición de producto si se hace clic fuera
     if (typeof modalEditarProducto !== 'undefined' && event.target === modalEditarProducto) {
         modalEditarProducto.style.display = 'none';
         console.debug("DEBUG: Modal de edición de producto cerrado (clic fuera).");
     }
-    // Cierra el modal de edición de cliente si se hace clic fuera
     if (typeof modalEditarCliente !== 'undefined' && event.target === modalEditarCliente) {
         modalEditarCliente.style.display = 'none';
         console.debug("DEBUG: Modal de edición de cliente cerrado (clic fuera).");
     }
-    // Cierra el modal de factura si se hace clic fuera
     if (typeof modalFactura !== 'undefined' && event.target === modalFactura) {
         modalFactura.style.display = 'none';
         console.debug("DEBUG: Modal de factura cerrado (clic fuera).");
     }
     
-    // Cierra el sidebar móvil si está abierto y se hace clic fuera de él o de sus botones de toggle
     if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('active-mobile') &&
         !sidebar.contains(event.target) && event.target !== toggleSidebarBtn && event.target !== mobileMenuToggle) { 
         

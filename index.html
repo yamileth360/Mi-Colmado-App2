@@ -97,24 +97,25 @@
                     
                     <div class="dashboard-secondary-panels">
                         <div class="dashboard-panel chart-panel">
-                            <h3>Ventas Mensuales</h3>
-                            <canvas id="ventas-mensuales-chart"></canvas>
-                        </div>
-                        <div class="dashboard-panel low-stock-panel">
                             <h3>Productos con Bajo Stock</h3>
                             <ul id="low-stock-list">
                                 <li class="low-stock-item">Cargando...</li>
                             </ul>
                         </div>
+                        <div class="dashboard-panel chart-panel">
+                            <h3>Productos Próximos a Vencer</h3>
+                            <ul id="expiring-soon-list">
+                                <li class="low-stock-item">Cargando...</li>
+                            </ul>
+                        </div>
                     </div>
-
                 </section>
 
                 <section id="inventario-seccion" class="app-section">
                     <h2>Inventario</h2>
                     <div class="section-header-controls">
                         <button class="btn-primary" id="btn-show-add-product-form">
-                            <i class="icon-add-stock"></i> Añadir Nuevo Producto 
+                            <i class="icon-add-stock"></i> <span>Añadir Nuevo Producto</span>
                         </button>
                     </div>
 
@@ -225,12 +226,12 @@
                         <button id="btn-registrar-venta" class="btn-primary">Registrar Venta</button>
                     </div>
                 </section>
-                
+
                 <section id="clientes-seccion" class="app-section">
                     <h2>Clientes</h2>
                     <div class="section-header-controls">
                         <button class="btn-primary" id="btn-show-add-client-form">
-                            <i class="icon-add-stock"></i> <span></span>
+                            <i class="icon-add-stock"></i> <span>Añadir Nuevo Cliente</span>
                         </button>
                     </div>
 
@@ -274,55 +275,6 @@
                         </thead>
                         <tbody>
                             <tr><td colspan="5">No hay clientes registrados.</td></tr>
-                        </tbody>
-                    </table>
-                </section>
-
-                 <section id="recepcion-mercancia-seccion" class="app-section">
-                    <h2>Recepción de Mercancía</h2>
-                    <div class="section-header-controls">
-                        <button class="btn-primary" id="btn-show-add-reception-form">
-                            <i class="icon-add-stock"></i> <span>Registrar Entrada de Productos</span>
-                        </button>
-                    </div>
-
-                    <div id="add-reception-form-container" class="recepcion-controles form-container">
-                        <h3 class="form-title">Registrar Entrada de Productos</h3>
-                        <form id="form-registrar-recepcion">
-                            <label for="buscar-producto-recepcion">Buscar Producto:</label>
-                            <input type="text" id="buscar-producto-recepcion" placeholder="Escribe el nombre del producto">
-                            <ul id="sugerencias-recepcion" class="sugerencias-lista"></ul>
-                            
-                            <input type="hidden" id="producto-id-recepcion"> 
-                            <label>Producto Seleccionado:</label>
-                            <span id="producto-seleccionado-recepcion-display"></span> 
-                            
-                            <label for="cantidad-recibida">Cantidad Recibida:</label>
-                            <input type="number" id="cantidad-recibida" min="1" value="1" required>
-                            
-                            <label for="nuevo-precio-compra">Nuevo Precio Compra:</label>
-                            <input type="number" id="nuevo-precio-compra" step="0.01">
-
-                            <label for="nuevo-precio-venta">Nuevo Precio Venta:</label>
-                            <input type="number" id="nuevo-precio-venta" step="0.01">
-
-                            <button type="submit" class="btn-primary">Registrar Recepción</button>
-                            <button type="button" class="btn-secondary" id="btn-cancel-add-reception">Cancelar</button>
-                        </form>
-                    </div>
-
-                    
-                    <h4>Historial de Recepciones (Últimas 5):</h4>
-                    <table id="tabla-recepciones">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Producto</th>
-                                <th>Cantidad Recibida</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="3">No hay recepciones registradas.</td></tr>
                         </tbody>
                     </table>
                 </section>
@@ -379,30 +331,30 @@
                             <i class="icon-add-stock"></i> <span>Registrar Entrada de Productos</span>
                         </button>
                     </div>
-                    
-                    <div class="recepcion-controles">
+
+                    <div id="add-reception-form-container" class="recepcion-controles form-container">
                         <h3 class="form-title">Registrar Entrada de Productos</h3>
-                        <form class="">
-                        <label for="buscar-producto-recepcion">Buscar Producto:</label>
-                        <input type="text" id="buscar-producto-recepcion" placeholder="Escribe el nombre del producto">
-                        <ul id="sugerencias-recepcion" class="sugerencias-lista"></ul>
-                        
-                        <input type="hidden" id="producto-id-recepcion"> 
-                        <span id="producto-seleccionado-recepcion"></span> 
-                        
-                        <label for="cantidad-recibida">Cantidad Recibida:</label>
-                        <input type="number" id="cantidad-recibida" min="1" value="1" required>
-                        
-                        <label for="nuevo-precio-compra">Nuevo Precio Compra:</label>
-                        <input type="number" id="nuevo-precio-compra" step="0.01">
+                        <form id="form-registrar-recepcion">
+                            <label for="buscar-producto-recepcion">Buscar Producto:</label>
+                            <input type="text" id="buscar-producto-recepcion" placeholder="Escribe el nombre del producto">
+                            <ul id="sugerencias-recepcion" class="sugerencias-lista"></ul>
+                            
+                            <input type="hidden" id="producto-id-recepcion"> 
+                            <label>Producto Seleccionado:</label>
+                            <span id="producto-seleccionado-recepcion-display"></span> 
+                            
+                            <label for="cantidad-recibida">Cantidad Recibida:</label>
+                            <input type="number" id="cantidad-recibida" min="1" value="1" required>
+                            
+                            <label for="nuevo-precio-compra">Nuevo Precio Compra:</label>
+                            <input type="number" id="nuevo-precio-compra" step="0.01">
 
-                        <label for="nuevo-precio-venta">Nuevo Precio Venta:</label>
-                        <input type="number" id="nuevo-precio-venta" step="0.01">
+                            <label for="nuevo-precio-venta">Nuevo Precio Venta:</label>
+                            <input type="number" id="nuevo-precio-venta" step="0.01">
 
-                        <button id="btn-registrar-recepcion" class="btn-primary">Registrar Recepción</button>
-                        <button type="button" class="btn-secondary" id="btn-cancel-add-client">Cancelar</button>
+                            <button type="submit" class="btn-primary">Registrar Recepción</button>
+                            <button type="button" class="btn-secondary" id="btn-cancel-add-reception">Cancelar</button>
                         </form>
-                        
                     </div>
 
                     <h4>Historial de Recepciones (Últimas 5):</h4>
@@ -529,7 +481,8 @@
     <script src="scripts/clients.js"></script>
     <script src="scripts/reports.js"></script>
     <script src="scripts/reception.js"></script>
-    <script src="scripts/main.js"></script>
     <script src="scripts/dashboard.js"></script>
+    <script src="scripts/main.js"></script> 
+    
 </body>
 </html>
