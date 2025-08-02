@@ -419,6 +419,7 @@ h3, h4 {
     padding: 0;
     border: none;
     background-color: transparent;
+    justify-items: start;
 }
 .form-container form label {
     font-weight: 600;
@@ -1496,3 +1497,4 @@ table tbody tr.expired {
 .icon-profit::before { content: "📈"; }
 .icon-users::before { content: "🧑‍🤝‍🧑"; }
 .icon-warning::before { content: "⚠️"; }
+.icon-cash-register::before { content: "💵"; }
